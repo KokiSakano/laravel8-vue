@@ -15,7 +15,7 @@ class CreateWhispersTable extends Migration
     {
         Schema::create('whispers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('user_id');
             $table->string('whisper');
             $table->integer('good');
             $table->timestamps();
