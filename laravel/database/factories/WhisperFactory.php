@@ -22,8 +22,9 @@ class WhisperFactory extends Factory
      */
     public function definition()
     {
+        $user = User::inRandomOrder()->first();
         return [
-            'user_id' => User::factory(),
+            'user_id' => $user->id,
             'whisper' => $this->faker->sentence,
             'good' => rand(0, 5),
         ];
