@@ -47,6 +47,11 @@ class WhisperController extends Controller
         return response("OK", 200);
     }
 
+    public function delete($id){
+        Whisper::find($id)->delete();
+        return response("OK", 200);;
+    }
+
     /**
      * Display the specified resource.
      *

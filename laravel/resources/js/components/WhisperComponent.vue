@@ -17,8 +17,9 @@
                                 <a id="time">{{ displayTime(whisper.created_at) }}</a>
                             </div>
                             <div class="card-body">
-                            {{ whisper.whisper }}
+                                {{ whisper.whisper }}
                             </div>
+                            <button type="button" @click="deleteWhisper(whisper.id)">削除</button>
                         </div>
                         <br />
                     </div>
@@ -59,9 +60,25 @@
                 axios.post('/api/', data).then(() =>
                     {
                         this.getWhisper();
-                    }
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
                 );
                 this.whisper_form = "";
+            },
+            deleteWhisper(id){
+                var data = {};
+                axios.delete("/api/" + id, JSON.stringify(data)).then(() =>
+                    {
+                        this.getWhisper();
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
+                );
             },
             displayTime(time){
                 const time_list = time.split("-");
