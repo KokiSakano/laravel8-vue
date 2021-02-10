@@ -1,22 +1,29 @@
 <template>
-    <div class="card">
-        <p v-if="errored">{{ error }}</p>
-        <p v-if="loading">Loading...</p>
-        <div v-else>
-            <ul>
-                <div v-for="whisper in whispers" :key="whisper.id">
-                    <div class="card">
-                        <div class="card-header">
-                            {{ whisper.name }}
-                            <a id="time">{{ displayTime(whisper.created_at) }}</a>
+    <div>
+        <div class="card">
+            <textarea type="text" class="form-control" v-model="whisper_form" placeholder="say whisper" rows=3></textarea>
+            <button type="submit" class="btn btn-primary" id="btn-whisper" @click="postWhisper">Whisper</button>
+        </div>
+        <div class="card-header"> Whisper </div>
+        <div class="card">
+            <p v-if="errored">{{ error }}</p>
+            <p v-if="loading">Loading...</p>
+            <div v-else>
+                <ul>
+                    <div v-for="whisper in whispers" :key="whisper.id">
+                        <div class="card">
+                            <div class="card-header">
+                                {{ whisper.name }}
+                                <a id="time">{{ displayTime(whisper.created_at) }}</a>
+                            </div>
+                            <div class="card-body">
+                            {{ whisper.whisper }}
+                            </div>
                         </div>
-                        <div class="card-body">
-                        {{ whisper.whisper }}
-                        </div>
+                        <br />
                     </div>
-                    <br />
-                </div>
-            </ul>
+                </ul>
+            </div>
         </div>
     </div>
 </template>
@@ -29,20 +36,32 @@
                 errored: false,
                 error: null,
                 whispers:null,
+                whisper_form: null,
             };
         },
         methods:{
             getWhisper(){
                 axios.get('/api/').then((result)=>
                     {
-                        this.whispers = result.data
-                        console.log(this.whispers)
+                        this.whispers = result.data.reverse()
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
                     })
                     .finally(() => (this.loading = false)
                 );
+            },
+            postWhisper(){
+                var data = {
+                    whisper: this.whisper_form
+                };
+                console.log(this.whisper_form)
+                axios.post('/api/', data).then(() =>
+                    {
+                        this.getWhisper();
+                    }
+                );
+                this.whisper_form = "";
             },
             displayTime(time){
                 const time_list = time.split("-");
@@ -51,7 +70,7 @@
                 return time_info["year"] + "/" + time_info["mounth"] + "/" + time_info["day"] + "/" + time_info["time"];
             },
         },
-        created() {
+        mounted() {
             this.getWhisper()
         }
     }
@@ -59,5 +78,8 @@
 <style>
     #time{
         opacity: 0.6;
+    }
+    #btn-whisper{
+        float: right;
     }
 </style>

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class WhisperController extends Controller
 {
@@ -35,7 +37,14 @@ class WhisperController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $whisper = new Whisper();
+        $user = Auth::user();
+        $whisper->whisper = $request->whisper;
+        $whisper->user_id = $user->id;
+        $whisper->name = $user->name;
+        $whisper->good = 0;
+        $whisper->save();
+        return response("OK", 200);
     }
 
     /**
