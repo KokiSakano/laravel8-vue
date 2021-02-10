@@ -65,16 +65,17 @@
                 var data = {
                     whisper: this.whisper_form
                 };
-                console.log(this.whisper_form)
-                axios.post('/api/', data).then(() =>
-                    {
-                        this.getWhisper();
-                    })
-                    .catch(err => {
-                        (this.errored = true), (this.error = err);
-                    })
-                    .finally(() => (this.loading = false)
-                );
+                if (!!this.whisper) {
+                    axios.post('/api/', data).then(() =>
+                        {
+                            this.getWhisper();
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
                 this.whisper_form = "";
             },
             deleteWhisper(id){
