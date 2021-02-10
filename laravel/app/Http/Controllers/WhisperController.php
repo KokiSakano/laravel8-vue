@@ -45,9 +45,9 @@ class WhisperController extends Controller
     {
         $whisper = new Whisper();
         $user = Auth::user();
-        $whisper->whisper = $request->whisper;
+        $whisper->whisp = $request->whisper;
         $whisper->user_id = $user->id;
-        $whisper->name = $user->name;
+        $whisper->user_name = $user->name;
         $whisper->good = 0;
         $whisper->save();
         return response("OK", 200);
