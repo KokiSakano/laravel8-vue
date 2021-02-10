@@ -5,6 +5,7 @@
  */
 import './bootstrap';
 import ExampleComponent from "./components/ExampleComponent";
+import WhisperComponent from "./components/WhisperComponent.vue";
 
 window.Vue = require('vue');
 
@@ -12,5 +13,6 @@ const app = new Vue({
     el: "#app",
     components: {
         ExampleComponent,
+        WhisperComponent,
     }
 });
