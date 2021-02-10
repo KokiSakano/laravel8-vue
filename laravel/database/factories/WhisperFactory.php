@@ -25,6 +25,7 @@ class WhisperFactory extends Factory
         $user = User::inRandomOrder()->first();
         return [
             'user_id' => $user->id,
+            'name' => $user->name,
             'whisper' => $this->faker->sentence,
             'good' => rand(0, 5),
         ];
