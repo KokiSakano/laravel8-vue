@@ -32,6 +32,18 @@
             };
         },
         methods:{
+            getWhisper(){
+                axios.get('/api/').then((result)=>
+                    {
+                        this.whispers = result.data
+                        console.log(this.whispers)
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
+                );
+            },
             displayTime(time){
                 const time_list = time.split("-");
                 let time_info = {"year": time_list[0], "mounth": time_list[1], "day": time_list[2].substr(0, 2), "time": time_list[2].substr(3, 8)};
@@ -40,17 +52,7 @@
             },
         },
         created() {
-            let vm = this;
-            axios.get('/api/').then((result)=>
-                {
-                    vm.whispers = result.data
-                    console.log(vm.whispers)
-                })
-                .catch(err => {
-                    (vm.errored = true), (vm.error = err);
-                })
-                .finally(() => (vm.loading = false)
-            );
+            this.getWhisper()
         }
     }
 </script>
