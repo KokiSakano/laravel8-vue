@@ -5,26 +5,35 @@
             <button type="submit" class="btn btn-primary" id="btn-whisper" @click="postWhisper">Whisper</button>
         </div>
         <div class="card-header"> Whisper </div>
-        <div class="card">
-            <p v-if="errored">{{ error }}</p>
-            <p v-if="loading">Loading...</p>
-            <div v-else>
-                <ul>
-                    <div v-for="whisper in whispers" :key="whisper.id">
-                        <div class="card">
-                            <div class="card-header">
-                                {{ whisper.name }}
-                                <a id="time">{{ displayTime(whisper.created_at) }}</a>
+        <p v-if="errored">{{ error }}</p>
+        <p v-if="loading">Loading...</p>
+        <div v-else>
+            <ul>
+                <div v-for="whisper in whispers" :key="whisper.id">
+                    <div class="card">
+                        <div class="card-header">
+                            {{ whisper.name }}
+                            <a id="time">{{ displayTime(whisper.created_at) }}</a>
+                            <div class="dropdown" id="somefunc">
+                                <button type="button" id="dropdown1"
+                                    class="btn btn-secondary dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                    ⋮
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdown1">
+                                    <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                {{ whisper.whisper }}
-                            </div>
-                            <button type="button" @click="deleteWhisper(whisper.id)">削除</button>
                         </div>
-                        <br />
+                        <div class="card-body">
+                            {{ whisper.whisper }}
+                        </div>
                     </div>
-                </ul>
-            </div>
+                    <br />
+                </div>
+            </ul>
         </div>
     </div>
 </template>
@@ -97,6 +106,9 @@
         opacity: 0.6;
     }
     #btn-whisper{
+        float: right;
+    }
+    #somefunc{
         float: right;
     }
 </style>
