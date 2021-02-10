@@ -37,13 +37,15 @@ class WhisperController extends Controller
      */
     public function store(Request $request)
     {
-        $whisper = new Whisper();
         $user = Auth::user();
-        $whisper->whisper = $request->whisper;
-        $whisper->user_id = $user->id;
-        $whisper->name = $user->name;
-        $whisper->good = 0;
-        $whisper->save();
+        $newdata = [
+            'whisper' => $request->whisper,
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'good' => 0,
+        ];
+        $whisper = new Whisper();
+        $whisper->fill($newdata)->save();
         return response("OK", 200);
     }
 
