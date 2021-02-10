@@ -16,7 +16,7 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        return response() -> json(Whisper::all());
+        //
     }
 
     /**
