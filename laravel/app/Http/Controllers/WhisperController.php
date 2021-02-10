@@ -16,7 +16,13 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        //
+        $whispers = Whisper::all();
+        $userornot = array();
+        $auth_id = Auth::id();
+        foreach ($whispers as $whisper) {
+            $userornot[$whisper->id] = ($auth_id === $whisper->user_id);
+        }
+        return array("whispers"=>$whispers, "loginuser"=>$userornot);
     }
 
     /**
