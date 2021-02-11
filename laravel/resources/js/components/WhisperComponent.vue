@@ -106,7 +106,7 @@
             displayTime(time){
                 const timeMoment = moment(time);
                 const nowMoment = moment(new Date());
-                const timeUnits = ["years", "months", "weeks", "hours", "minutes", "seconds"];
+                const timeUnits = ["years", "months", "weeks", "days", "hours", "minutes", "seconds"];
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
