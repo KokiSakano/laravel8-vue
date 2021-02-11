@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Whisper extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'whisp',
+        'user_id',
+        'user_name',
+        'good',
+    ];
 }
