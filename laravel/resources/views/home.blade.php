@@ -7,7 +7,11 @@
             <div class="card">
                 <div class="card-header">{{ __('Dashboard') }}</div>
                 <div id="app">
-                    <whisper-component></whisper-component>
+                    @if (Auth::check())
+                        <whisper-component></whisper-component>
+                    @else
+                        <noauth-component></noauth-component>
+                    @endif
                 </div>
                 <div class="card-body">
                     @if (session('status'))

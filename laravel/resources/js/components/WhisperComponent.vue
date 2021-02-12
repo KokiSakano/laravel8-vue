@@ -12,23 +12,25 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
-                            {{ whisper.name }}
+                            {{ whisper.user_name }}
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
-                            <div class="dropdown" id="somefunc">
-                                <button type="button" id="dropdown1"
-                                    class="btn btn-secondary dropdown-toggle"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                    ⋮
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdown1">
-                                    <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                            <div v-if="ownWhisper(whisper.id)">
+                                <div class="dropdown" id="somefunc">
+                                    <button type="button" id="dropdown1"
+                                        class="btn btn-secondary dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                        ⋮
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdown1">
+                                        <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            {{ whisper.whisper }}
+                            {{ whisper.whisp }}
                         </div>
                     </div>
                     <br />
@@ -39,6 +41,7 @@
 </template>
 
 <script>
+    import moment from 'moment';
     export default {
         data(){
             return {
@@ -47,13 +50,15 @@
                 error: null,
                 whispers:null,
                 whisper_form: null,
+                whisper_user: null,
             };
         },
         methods:{
             getWhisper(){
                 axios.get('/api/').then((result)=>
                     {
-                        this.whispers = result.data.reverse()
+                        this.whispers = result.data["whispers"].reverse();
+                        this.whisper_user = result.data["loginuser"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -65,16 +70,17 @@
                 var data = {
                     whisper: this.whisper_form
                 };
-                console.log(this.whisper_form)
-                axios.post('/api/', data).then(() =>
-                    {
-                        this.getWhisper();
-                    })
-                    .catch(err => {
-                        (this.errored = true), (this.error = err);
-                    })
-                    .finally(() => (this.loading = false)
-                );
+                if (!!data["whisper"]) {
+                    axios.post('/api/', data).then(() =>
+                        {
+                            this.getWhisper();
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
                 this.whisper_form = "";
             },
             deleteWhisper(id){
@@ -89,15 +95,31 @@
                     .finally(() => (this.loading = false)
                 );
             },
+            ownWhisper(id){
+                try{
+                    return this.whisper_user[id];
+                }
+                catch(e){
+                    return true;
+                }
+            },
             displayTime(time){
-                const time_list = time.split("-");
-                let time_info = {"year": time_list[0], "mounth": time_list[1], "day": time_list[2].substr(0, 2), "time": time_list[2].substr(3, 8)};
-                // 後から現在の時刻と比較して表示を変更するコードに書き換える。
-                return time_info["year"] + "/" + time_info["mounth"] + "/" + time_info["day"] + "/" + time_info["time"];
+                const timeMoment = moment(time);
+                const nowMoment = moment(new Date());
+                const timeUnits = ["years", "months", "weeks", "days", "hours", "minutes", "seconds"];
+                const unit = timeUnits.filter(timeUnit => {
+                    return nowMoment.diff(timeMoment, timeUnit) != 0;
+                })[0];
+                if (unit === "year" || unit ==="months") return timeMoment.format("YYY/MM/DD");
+                else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
+                else return "now"
             },
         },
+        created() {
+            this.getWhisper();
+        },
         mounted() {
-            this.getWhisper()
+            this.getWhisper();
         }
     }
 </script>

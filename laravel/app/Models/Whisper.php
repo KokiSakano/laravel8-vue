@@ -9,9 +9,9 @@ class Whisper extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'whisper',
+        'whisp',
         'user_id',
-        'name',
+        'user_name',
         'good',
     ];
 }
