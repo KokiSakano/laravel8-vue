@@ -19,7 +19,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::delete('/{id}', 'WhisperController@destroy');
+Route::delete('/whispers/{id}', 'WhisperController@destroy');
+
+Route::get('/whispers/noauth/', function(){
+    return Whisper::with('user')->get();
+});
 
 Route::get('/users/{id}', 'UserController@show');
 

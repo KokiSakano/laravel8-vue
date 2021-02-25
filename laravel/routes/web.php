@@ -25,8 +25,8 @@ Route::get('/myprofile', function () {
     return view('/myprofile');
 });
 
-Route::middleware('auth')->post('/api', 'WhisperController@store');
+Route::middleware('auth')->post('/api/whispers/', 'WhisperController@store');
 
-Route::middleware('auth')->get('/api', 'WhisperController@index');
+Route::middleware('auth')->get('/api/whispers/', 'WhisperController@index');
 
 Route::middleware('auth')->put('/api/users/{id}', 'UserController@update');

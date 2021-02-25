@@ -93,7 +93,7 @@
         },
         methods: {
             getWhisper(){
-                axios.get('/api/').then((result)=>
+                axios.get('/api/whispers/').then((result)=>
                     {
                         this.whispers = result.data["whispers"].reverse();
                         this.authId = result.data["loginUserId"];

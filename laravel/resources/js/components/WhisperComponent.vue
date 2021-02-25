@@ -55,7 +55,7 @@
         },
         methods:{
             getWhisper(){
-                axios.get('/api/').then((result)=>
+                axios.get('/api/whispers/').then((result)=>
                     {
                         this.whispers = result.data["whispers"].reverse();
                         this.authId = result.data["loginUserId"];
@@ -71,7 +71,7 @@
                     whisper: this.whisperForm
                 };
                 if (!!data["whisper"]) {
-                    axios.post('/api/', data).then(() =>
+                    axios.post('/api/whispers/', data).then(() =>
                         {
                             this.getWhisper();
                         })
@@ -85,7 +85,7 @@
             },
             deleteWhisper(id){
                 var data = {};
-                axios.delete("/api/" + id, JSON.stringify(data)).then(() =>
+                axios.delete("/api/whispers/" + id, JSON.stringify(data)).then(() =>
                     {
                         this.getWhisper();
                     })

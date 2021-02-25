@@ -35,9 +35,9 @@
         },
         methods:{
             getWhisper(){
-                axios.get('/api/noauth').then((result)=>
+                axios.get('/api/whispers/noauth/').then((result)=>
                     {
-                        this.whispers = result.data["whispers"].reverse();
+                        this.whispers = result.data.reverse();
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
