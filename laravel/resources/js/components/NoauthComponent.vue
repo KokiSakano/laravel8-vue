@@ -8,7 +8,7 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
-                            {{ whisper.user_name }}
+                            {{ whisper.user.name }}
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
                         </div>
                         <div class="card-body">
@@ -30,14 +30,14 @@
                 loading: true,
                 errored: false,
                 error: null,
-                whispers:null,
+                whispers: null,
             };
         },
         methods:{
             getWhisper(){
                 axios.get('/api/noauth').then((result)=>
                     {
-                        this.whispers = result.data.reverse();
+                        this.whispers = result.data["whispers"].reverse();
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);

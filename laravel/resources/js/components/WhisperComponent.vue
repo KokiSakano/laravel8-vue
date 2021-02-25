@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="card">
-            <textarea type="text" class="form-control" v-model="whisper_form" placeholder="say whisper" rows=3></textarea>
+            <textarea type="text" class="form-control" v-model="whisperForm" placeholder="say whisper" rows=3></textarea>
             <button type="submit" class="btn btn-primary" id="btn-whisper" @click="postWhisper">Whisper</button>
         </div>
         <div class="card-header"> Whisper </div>
@@ -12,9 +12,9 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
-                            {{ whisper.user_name }}
+                            {{ whisper.user.name }}
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
-                            <div v-if="ownWhisper(whisper.id)">
+                            <div v-if="whisper.user_id === authId">
                                 <div class="dropdown" id="somefunc">
                                     <button type="button" id="dropdown1"
                                         class="btn btn-secondary dropdown-toggle"
@@ -48,9 +48,9 @@
                 loading: true,
                 errored: false,
                 error: null,
-                whispers:null,
-                whisper_form: null,
-                whisper_user: null,
+                whispers: null,
+                whisperForm: null,
+                authId: null,
             };
         },
         methods:{
@@ -58,7 +58,7 @@
                 axios.get('/api/').then((result)=>
                     {
                         this.whispers = result.data["whispers"].reverse();
-                        this.whisper_user = result.data["loginuser"];
+                        this.authId = result.data["loginUserId"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -68,7 +68,7 @@
             },
             postWhisper(){
                 var data = {
-                    whisper: this.whisper_form
+                    whisper: this.whisperForm
                 };
                 if (!!data["whisper"]) {
                     axios.post('/api/', data).then(() =>
@@ -81,7 +81,7 @@
                         .finally(() => (this.loading = false)
                     );
                 }
-                this.whisper_form = "";
+                this.whisperForm = "";
             },
             deleteWhisper(id){
                 var data = {};
@@ -94,14 +94,6 @@
                     })
                     .finally(() => (this.loading = false)
                 );
-            },
-            ownWhisper(id){
-                try{
-                    return this.whisper_user[id];
-                }
-                catch(e){
-                    return true;
-                }
             },
             displayTime(time){
                 const timeMoment = moment(time);

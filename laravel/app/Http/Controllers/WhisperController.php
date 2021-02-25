@@ -16,13 +16,9 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        $whispers = Whisper::all();
-        $userornot = array();
-        $auth_id = Auth::id();
-        foreach ($whispers as $whisper) {
-            $userornot[$whisper->id] = ($auth_id === $whisper->user_id);
-        }
-        return array("whispers"=>$whispers, "loginuser"=>$userornot);
+        $whispers = Whisper::with('user')->get();
+        $authId = Auth::id();
+        return array("whispers"=>$whispers, "loginUserId"=>$authId);
     }
 
     /**
@@ -47,16 +43,9 @@ class WhisperController extends Controller
         $newdata = [
             'whisp' => $request->whisper,
             'user_id' => $user->id,
-            'user_name' => $user->name,
             'good' => 0,
         ];
-        $whisper = new Whisper();
-        $whisper->fill($newdata)->save();
-        return response("OK", 200);
-    }
-
-    public function delete($id){
-        Whisper::find($id)->delete();
+        $whisper = Whisper::create($newdata);
         return response("OK", 200);
     }
 
@@ -100,8 +89,9 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Whisper $whisper)
+    public function destroy($id)
     {
-        //
+        Whisper::find($id)->delete();
+        return response("OK", 200);
     }
 }

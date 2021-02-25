@@ -14,4 +14,9 @@ class Whisper extends Model
         'user_name',
         'good',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 }
