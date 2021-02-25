@@ -21,6 +21,12 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('/myprofile', function () {
+    return view('/myprofile');
+});
+
 Route::middleware('auth')->post('/api', 'WhisperController@store');
 
 Route::middleware('auth')->get('/api', 'WhisperController@index');
+
+Route::middleware('auth')->put('/api/users/{id}', 'UserController@update');

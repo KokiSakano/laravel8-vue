@@ -20,3 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::delete('/{id}', 'WhisperController@destroy');
+
+Route::get('/users/{id}', 'UserController@show');
+
+Route::delete('/users/{id}', 'UserController@destroy');
