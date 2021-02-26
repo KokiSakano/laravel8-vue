@@ -5,6 +5,7 @@
         <p v-if="loading">Loading...</p>
         <div v-else>
             <ul>
+                <br />
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
