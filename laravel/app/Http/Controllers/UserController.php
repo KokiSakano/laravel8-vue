@@ -7,7 +7,7 @@ use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class WhisperController extends Controller
+class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,9 +16,7 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        $whispers = Whisper::with('user')->get();
-        $authId = Auth::id();
-        return array("whispers"=>$whispers, "loginUserId"=>$authId);
+        //
     }
 
     /**
@@ -39,34 +37,28 @@ class WhisperController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $newdata = [
-            'whisp' => $request->whisper,
-            'user_id' => $user->id,
-            'good' => 0,
-        ];
-        $whisper = Whisper::create($newdata);
-        return response("OK", 200);
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Whisper  $whisper
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Whisper $whisper)
+    public function show($id)
     {
-        //
+        $authUser = User::find($id);
+        return $authUser;
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Whisper  $whisper
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Whisper $whisper)
+    public function edit($id)
     {
         //
     }
@@ -75,23 +67,30 @@ class WhisperController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Whisper  $whisper
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Whisper $whisper)
+    public function update(Request $request, $id)
     {
-        //
+        $update = [
+            'name' => $request -> name,
+            'email' => $request -> email,
+        ];
+        User::find($id) -> update($update);
+        return response("OK", 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Whisper  $whisper
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        Whisper::find($id)->delete();
+        $deleteUser = User::find($id);
+        Whisper::where('user_id', $id) -> delete();
+        $deleteUser -> delete();
         return response("OK", 200);
     }
 }
