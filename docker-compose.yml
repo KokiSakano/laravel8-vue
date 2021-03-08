@@ -16,6 +16,7 @@ services:
       - ./laravel:/var/www/html
     depends_on:
         - db
+        - db-testing
 
   db:
     image: postgres:10-alpine
