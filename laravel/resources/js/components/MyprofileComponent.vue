@@ -61,8 +61,8 @@
                                 <div class="card-body">
                                     {{ whisper.whisp }}
                                 </div>
+                                <br />
                             </div>
-                            <br />
                         </div>
                     </ul>
                 </div>
