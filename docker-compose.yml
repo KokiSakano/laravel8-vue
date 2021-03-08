@@ -29,6 +29,18 @@ services:
     ports:
       - "5432:5432"
 
+  db-testing:
+    image: postgres:10-alpine
+    restart: always
+    volumes:
+      - ./docker/db/data/:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DATABASE: postgres_test
+    ports:
+      - "5432:5432"
+
   minio:
     image: minio/minio
     ports:
