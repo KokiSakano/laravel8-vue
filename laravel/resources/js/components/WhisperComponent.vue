@@ -26,6 +26,7 @@
                                     </button>
                                     <div class="dropdown-menu" aria-labelledby="dropdown1">
                                         <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                                        <button class="dropdown-item" type="button" @click="openModal(whisper)">編集</button>
                                     </div>
                                 </div>
                             </div>
@@ -37,20 +38,35 @@
                     <br />
                 </div>
             </ul>
+            <EditwhispModal @close="closeModal" v-if="modal">
+                <p slot="header"> Whisp変更 </p>
+                <div slot="body">
+                    <p>変更前:{{whispEdit.whisp}}</p> <br />
+                    <p>変更後:<input type="text" class="form-control" v-model="whispForm"></p>
+                </div>
+                <button slot="footer" @click="changeWhisp()">
+                OK
+                </button>
+            </EditwhispModal>
         </div>
     </div>
 </template>
 
 <script>
     import moment from 'moment';
+    import EditwhispModal from './EditwhispModal';
     export default {
+        components: {EditwhispModal},
         data(){
             return {
                 loading: true,
                 errored: false,
                 error: null,
                 whispers: null,
+                modal: false,
                 whisperForm: null,
+                whispEdit: null,
+                whispForm: null,
                 authId: null,
             };
         },
@@ -96,6 +112,19 @@
                     .finally(() => (this.loading = false)
                 );
             },
+            editWhisper(id){
+                axios.put("/api/whispers/" + id, {
+                    whisp: this.whispForm,
+                }).then(() =>
+                    {
+                        this.getWhisper();
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
+                );
+            },
             displayTime(time){
                 const timeMoment = moment(time);
                 const nowMoment = moment(new Date());
@@ -106,6 +135,19 @@
                 if (unit === "year" || unit ==="months") return timeMoment.format("YYY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
+            },
+            openModal(whisper) {
+                this.modal = true;
+                this.whispEdit = whisper;
+            },
+            closeModal() {
+                this.modal = false;
+            },
+            changeWhisp() {
+                if (this.whispEdit.whisp !== this.whispForm){
+                    this.editWhisper(this.whispEdit.id);
+                }
+                this.closeModal();
             },
         },
         created() {

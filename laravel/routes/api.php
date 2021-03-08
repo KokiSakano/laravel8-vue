@@ -21,6 +21,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::delete('/whispers/{id}', 'WhisperController@destroy');
 
+Route::put('/whispers/{id}', 'WhisperController@update');
+
 Route::get('/whispers/noauth/', function(){
     return Whisper::with('user')->get();
 });

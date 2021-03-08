@@ -78,9 +78,13 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Whisper $whisper)
+    public function update(Request $request, $id)
     {
-        //
+        $update = [
+            'whisp' => $request -> whisp,
+        ];
+        Whisper::find($id) -> update($update);
+        return response("OK", 200);
     }
 
     /**
