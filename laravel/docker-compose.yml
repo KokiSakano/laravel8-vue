@@ -43,6 +43,17 @@ services:
             - 'sailmysql:/var/lib/mysql'
         networks:
             - sail
+    postgres:
+        image: postgres:10-alpine
+        restart: always
+        volumes:
+        - ./docker/db/data/:/var/lib/postgresql/data/
+        environment:
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD}'
+            POSTGRES_DATABASE: '${DB_DATABASE}'
+        ports:
+        - "5432:5432"
     redis:
         image: 'redis:alpine'
         ports:
