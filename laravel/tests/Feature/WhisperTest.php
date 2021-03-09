@@ -35,6 +35,25 @@ class WhisperTest extends TestCase
     }
 
     /**
+     * 編集テスト
+     */
+    public function testWhisperEdit()
+    {
+        $user = User::factory()->create();
+        $whisper = Whisper::factory()->create();
+        $this->actingAs($user);
+
+        $route = '/api/whispers/' . strval($whisper->id);
+        $response = $this->put($route, [
+            'whisp' => 'test',
+        ]);
+        $response -> assertStatus(200);
+
+        $whisper = Whisper::find($whisper->id);
+        $this->assertEquals($whisper->whisp, 'test');
+    }
+
+    /**
      * 削除テスト
      */
     public function testWhisperDelete()
