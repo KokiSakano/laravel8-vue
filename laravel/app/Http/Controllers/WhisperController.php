@@ -16,7 +16,7 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        $whispers = Whisper::with('user')->get();
+        $whispers = Whisper::with('user')->latest()->paginate(10);
         $authId = Auth::id();
         return array("whispers"=>$whispers, "loginUserId"=>$authId);
     }
@@ -55,9 +55,16 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function show(Whisper $whisper)
+    public function show($id)
     {
-        //
+        $user = User::find($id);
+        $authId = Auth::id();
+        $whispers = Whisper::with('user')->
+        whereHas('user', function ($query) use ($user) {
+            $query->where('name', $user->name);
+        }
+        )->latest()->paginate(10);
+        return array("whispers"=>$whispers, "loginUserId"=>$authId);
     }
 
     /**

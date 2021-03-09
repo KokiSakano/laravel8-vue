@@ -5,6 +5,20 @@
             <button type="submit" class="btn btn-primary" id="btn-whisper" @click="postWhisper">Whisper</button>
         </div>
         <div class="card-header"> Whisper </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
+                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
+                    <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
+                        <a class="page-link" href="#" @click="change(page)">{{page}}</a>
+                    </li>
+                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
+                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
+                </ul>
+            </div>
+            <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
+        </div>
         <p v-if="errored">{{ error }}</p>
         <p v-if="loading">Loading...</p>
         <div v-else>
@@ -68,14 +82,24 @@
                 whispEdit: null,
                 whispForm: null,
                 authId: null,
+                current_page: 1,
+                last_page: 1,
+                total: 1,
+                from: 0,
+                to: 0
             };
         },
         methods:{
-            getWhisper(){
-                axios.get('/api/whispers/').then((result)=>
+            getWhisper(page){
+                axios.get('/api/whispers?page=' + page).then((result)=>
                     {
-                        this.whispers = result.data["whispers"].reverse();
+                        this.whispers = result.data["whispers"].data;
                         this.authId = result.data["loginUserId"];
+                        this.current_page = result.data["whispers"].current_page;
+                        this.last_page = result.data["whispers"].last_page;
+                        this.total = result.data["whispers"].total;
+                        this.from = result.data["whispers"].from;
+                        this.to = result.data["whispers"].to;
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -90,7 +114,7 @@
                 if (!!data["whisper"]) {
                     axios.post('/api/whispers/', data).then(() =>
                         {
-                            this.getWhisper();
+                            this.getWhisper(this.current_page);
                         })
                         .catch(err => {
                             (this.errored = true), (this.error = err);
@@ -104,7 +128,7 @@
                 var data = {};
                 axios.delete("/api/whispers/" + id, JSON.stringify(data)).then(() =>
                     {
-                        this.getWhisper();
+                        this.getWhisper(this.current_page);
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -117,7 +141,7 @@
                     whisp: this.whispForm,
                 }).then(() =>
                     {
-                        this.getWhisper();
+                        this.getWhisper(this.current_page);
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -149,12 +173,23 @@
                 }
                 this.closeModal();
             },
+            change(page) {
+            if (page >= 1 && page <= this.last_page) this.getWhisper(page)
+            },
         },
         created() {
-            this.getWhisper();
+            this.getWhisper(this.current_page);
         },
         mounted() {
-            this.getWhisper();
+            this.getWhisper(this.current_page);
+        },
+        computed: {
+        pages() {
+            let start = _.max([this.current_page - 2, 1])
+            let end = _.min([start + 5, this.last_page + 1])
+            start = _.max([end - 5, 1])
+            return _.range(start, end)
+        },
         }
     }
 </script>
