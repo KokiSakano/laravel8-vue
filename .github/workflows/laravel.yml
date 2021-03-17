@@ -23,8 +23,8 @@ jobs:
           POSTGRES_PASSWORD: db_password
     env:
       APP_ENV: testing
-      DB_USERNAME: user
-      DB_PASSWORD: password
+      DB_USERNAME: db_user
+      DB_PASSWORD: db_password
       DB_HOST: localhost
       DB_PORT: 5432
       PAGER: cat # prevent psql commands using less
