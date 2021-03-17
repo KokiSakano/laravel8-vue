@@ -2,13 +2,15 @@ name: laravel-test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - "src/**" # Laravel関連のディレクトリに変更があった時にのみ処理が走る
+      - "src/!**.md" # ただし、変更されたファイルが *.mdの時は無視する（だいたいREADMEなので）
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   laravel-tests:
-
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -16,11 +18,13 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: sample
+          POSTGRES_DB: testing
           POSTGRES_USER: db_user
           POSTGRES_PASSWORD: db_password
     env:
       APP_ENV: testing
+      DB_USERNAME: db_user
+      DB_PASSWORD: db_password
       DB_HOST: localhost
       DB_PORT: 5432
       PAGER: cat # prevent psql commands using less
