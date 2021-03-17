@@ -72,9 +72,14 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $thumbnailFile = $request -> file;
+        $fileName = 'thumbnail_' . Auth::id() . '.' . $thumbnailFile->getClientOriginalExtension();
+        $thumbnailFile->storeAs('public/profile_images/', $fileName);
+        $thumbnail = 'storage/profile_images/' . $fileName;
         $update = [
             'name' => $request -> name,
             'email' => $request -> email,
+            'thumbnail' => $thumbnail,
         ];
         User::find($id) -> update($update);
         return response("OK", 200);

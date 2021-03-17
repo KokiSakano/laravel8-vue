@@ -13,6 +13,11 @@
                         <EditprofileModal @close="closeModal" v-if="modal">
                             <p slot="header"> プロフィール変更 </p>
                             <div slot="body">
+                                <div class="card-body">
+                                    <h4 class="card-title">プロフィール画像変更</h4>
+                                    <input type="file" accept="image/*" @change="changeImage($event)">
+                                    <img :src="thumbnail" v-if="thumbnail">
+                                </div>
                                 <tr>
                                     <td align="right"><b>name:</b></td>
                                     <td><input type="text" class="form-control" v-model="nameForm"></td>
@@ -97,6 +102,9 @@
                 whispers: null,
                 authId: null,
                 loginUser: null,
+                thumbnail: null,
+                thumbnailFlag: false,
+                file: null,
                 nameForm: null,
                 emailForm: null,
                 passwordForm: "まだ対応してないよ。",
@@ -117,6 +125,7 @@
                         axios.get('/api/whispers/myprofile/'+this.authId+'?page='+page).then((result)=>
                             {
                                 this.whispers = result.data["whispers"].data;
+                                this.thumbnail = this.whispers[0]["user"]["thumbnail"];
                                 this.current_page = result.data["whispers"].current_page;
                                 this.last_page = result.data["whispers"].last_page;
                                 this.total = result.data["whispers"].total;
@@ -160,22 +169,41 @@
                 this.modal = true
             },
             closeModal() {
-                this.modal = false
+                this.modal = false;
+                this.thumbnailFlag = false;
+            },
+            changeImage(e) {
+                const files = e.target.files;
+                if(files.length > 0) {
+                    this.file = files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.thumbnailFlag = true
+                        this.thumbnail = e.target.result;
+                    };
+                    reader.readAsDataURL(this.file);
+                }
             },
             changeProfile() {
                 if(this.deleteForm === "delete"){
                     this.deleteUser();
                 }
-                else if (this.loginUser["name"] !== this.nameForm){
+                else if (this.loginUser["name"] !== this.nameForm || this.thumbnailFlag){
                     this.editUser();
                 }
                 this.closeModal();
             },
             editUser(){
-                axios.put('/api/users/' + this.loginUser["id"], {
-                    name: this.nameForm,
-                    email: this.emailForm,
-                    password: this.passwordForm
+                let formData = new FormData();
+                formData.append("name", this.nameForm);
+                formData.append("email", this.emailForm);
+                formData.append("password", this.passwordForm);
+                formData.append("file", this.file);
+                console.log(formData);
+                axios.post('/api/users/' + this.loginUser["id"], formData, {
+                    headers: {
+                        'X-HTTP-Method-Override': 'PUT'
+                    }
                 })
                 .then(() => this.getWhisper(this.current_page))
                 .catch(err => {
@@ -208,3 +236,10 @@
         }
     }
 </script>
+<style>
+img {
+    border-radius: 50%;
+    width:  180px;
+    height: 180px;
+}
+</style>
