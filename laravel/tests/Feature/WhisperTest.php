@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
+use App\Models\Whisper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-
-use App\Models\User;
-use App\Models\Whisper;
 
 class WhisperTest extends TestCase
 {
@@ -19,18 +18,21 @@ class WhisperTest extends TestCase
      * @return void
      */
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        $user = User::factory()->create();
+        $this->actingAs($user);
+    }
+
     /**
      * 投稿テスト
      */
     public function testWhisperPost()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $response = $this->post('/api/whispers/', [
+        $this->post('/api/whispers/', [
             'whisper' => 'test'
-        ]);
-        $response -> assertStatus(200);
+        ])->assertStatus(200);
         $this->assertEquals(1, Whisper::count());
     }
 
@@ -58,13 +60,10 @@ class WhisperTest extends TestCase
      */
     public function testWhisperDelete()
     {
-        $user = User::factory()->create();
         $whisper = Whisper::factory()->create();
-        $this->actingAs($user);
 
         $route = '/api/whispers/' . strval($whisper->id);
-        $response = $this->delete($route);
-        $response -> assertStatus(200);
+        $this->delete($route)->assertStatus(200);
         $this->assertEquals(0, Whisper::count());
     }
 
@@ -73,11 +72,8 @@ class WhisperTest extends TestCase
      */
     public function testWhisperGet()
     {
-        $user = User::factory()->create();
         $whisper = Whisper::factory()->create();
-        $this->actingAs($user);
 
-        $response = $this->get('/api/whispers/');
-        $response -> assertStatus(200);
+        $this->get('/api/whispers/')->assertStatus(200);
     }
 }

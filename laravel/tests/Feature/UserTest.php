@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-
-use App\Models\User;
 
 class UserTest extends TestCase
 {
@@ -17,24 +16,24 @@ class UserTest extends TestCase
      *
      * @return void
      */
-
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+        $this->actingAs($this->user);
+    }
     /**
      * 編集テスト
      */
     public function testUserEdit()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $route = '/api/users/' . strval($user->id);
-        $response = $this->put($route, [
+        $route = '/api/users/' . strval($this->user->id);
+        $this->put($route, [
             'name' => 'test',
-            'email' => 'test@test.com',
-            'file' => "null"
-        ]);
-        $response->assertStatus(200);
+            'email' => 'test@test.com'
+        ])->assertStatus(200);
 
-        $user = User::find($user->id);
+        $user = User::find($this->user->id);
         $this->assertEquals($user->name, 'test');
         $this->assertEquals($user->email, 'test@test.com');
     }
@@ -44,12 +43,8 @@ class UserTest extends TestCase
      */
     public function testUserDelete()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $route = '/api/users/' . strval($user->id);
-        $response = $this->delete($route);
-        $response->assertStatus(200);
+        $route = '/api/users/' . strval($this->user->id);
+        $this->delete($route)->assertStatus(200);
         $this->assertEquals(0, User::count());
     }
 
@@ -58,11 +53,7 @@ class UserTest extends TestCase
      */
     public function testUserGet()
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        $route = '/api/users/' . strval($user->id);
-        $response = $this->get($route);
-        $response->assertOK();
+        $route = '/api/users/' . strval($this->user->id);
+        $this->get($route)->assertOK();
     }
 }
