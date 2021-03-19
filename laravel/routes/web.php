@@ -25,6 +25,8 @@ Route::get('/myprofile', function () {
     return view('/myprofile');
 });
 
+Route::middleware('auth')->get('/api/whispers/myprofile/', 'WhisperController@show');
+
 Route::middleware('auth')->post('/api/whispers/', 'WhisperController@store');
 
 Route::middleware('auth')->get('/api/whispers/', 'WhisperController@index');

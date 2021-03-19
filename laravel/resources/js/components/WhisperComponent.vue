@@ -27,6 +27,8 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
+                            <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
+                            <img class="thumbnail" src="default.png"/>
                             {{ whisper.user.name }}
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
                             <div v-if="whisper.user_id === authId">
@@ -202,5 +204,10 @@
     }
     #somefunc{
         float: right;
+    }
+    .thumbnail {
+    border-radius: 50%;
+    width:  50px;
+    height: 50px;
     }
 </style>

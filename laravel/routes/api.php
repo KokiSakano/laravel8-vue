@@ -23,12 +23,8 @@ Route::delete('/whispers/{id}', 'WhisperController@destroy');
 
 Route::put('/whispers/{id}', 'WhisperController@update');
 
-Route::get('/whispers/noauth/', function(){
+Route::get('/whispers/noauth/', function () {
     return Whisper::with('user')->latest()->paginate(10);
 });
-
-Route::get('/whispers/myprofile/{id}', 'WhisperController@show');
-
-Route::get('/users/{id}', 'UserController@show');
 
 Route::delete('/users/{id}', 'UserController@destroy');

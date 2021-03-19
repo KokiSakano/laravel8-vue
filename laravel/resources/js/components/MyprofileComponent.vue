@@ -16,7 +16,8 @@
                                 <div class="card-body">
                                     <h4 class="card-title">プロフィール画像変更</h4>
                                     <input type="file" accept="image/*" @change="changeImage($event)">
-                                    <img :src="thumbnail" v-if="thumbnail">
+                                    <!--img class="thumbnail-change" :src="thumbnail" v-if="thumbnail"-->
+                                    <img class="thumbnail-change" src="default.png">
                                 </div>
                                 <tr>
                                     <td align="right"><b>name:</b></td>
@@ -60,6 +61,8 @@
                         <div v-for="whisper in whispers" :key="whisper.id">
                             <div v-if="whisper.user_id === authId" class="card">
                                 <div class="card-header">
+                                    <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
+                                    <img class="thumbnail" src="default.png"/>
                                     {{ whisper.user.name }}
                                     <a id="time">{{ displayTime(whisper.created_at) }}</a>
                                     <div class="dropdown" id="somefunc">
@@ -118,26 +121,20 @@
         },
         methods: {
             getWhisper(page){
-                axios.get('/api/whispers/').then((result)=>
+                axios.get('/api/whispers/myprofile?page='+page).then((result)=>
                     {
-                        this.authId = result.data["loginUserId"];
-                        this.getLoginUser();
-                        axios.get('/api/whispers/myprofile/'+this.authId+'?page='+page).then((result)=>
-                            {
-                                this.whispers = result.data["whispers"].data;
-                                this.thumbnail = this.whispers[0]["user"]["thumbnail"];
-                                this.current_page = result.data["whispers"].current_page;
-                                this.last_page = result.data["whispers"].last_page;
-                                this.total = result.data["whispers"].total;
-                                this.from = result.data["whispers"].from;
-                                this.to = result.data["whispers"].to;
-                                this.getLoginUser();
-                            })
-                            .catch(err => {
-                                (this.errored = true), (this.error = err);
-                            })
-                            .finally(() => (this.loading = false)
-                        );
+                        this.whispers = result.data["whispers"].data;
+                        console.log(this.whispers[0].user.thumbnail)
+                        this.thumbnail = this.whispers[0]["user"]["thumbnail"];
+                        this.current_page = result.data["whispers"].current_page;
+                        this.last_page = result.data["whispers"].last_page;
+                        this.total = result.data["whispers"].total;
+                        this.from = result.data["whispers"].from;
+                        this.to = result.data["whispers"].to;
+                        this.loginUser = result.data["loginUser"];
+                        this.authId = this.loginUser["id"];
+                        this.nameForm = this.loginUser["name"];
+                        this.emailForm = this.loginUser["email"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -145,13 +142,16 @@
                     .finally(() => (this.loading = false)
                 );
             },
-            getLoginUser(){
-                axios.get('/api/users/'+this.authId).then((result)=>
+            deleteWhisper(id){
+                var data = {};
+                axios.delete("/api/whispers/" + id, JSON.stringify(data)).then(() =>
                     {
-                        this.loginUser = result.data;
-                        this.nameForm = this.loginUser["name"];
-                        this.emailForm = this.loginUser["email"];
-                    }
+                        this.getWhisper(this.current_page);
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
                 );
             },
             displayTime(time){
@@ -199,7 +199,6 @@
                 formData.append("email", this.emailForm);
                 formData.append("password", this.passwordForm);
                 formData.append("file", this.file);
-                console.log(formData);
                 axios.post('/api/users/' + this.loginUser["id"], formData, {
                     headers: {
                         'X-HTTP-Method-Override': 'PUT'
@@ -237,9 +236,14 @@
     }
 </script>
 <style>
-img {
+.thumbnail {
     border-radius: 50%;
-    width:  180px;
-    height: 180px;
+    width:  50px;
+    height: 50px;
+}
+.thumbnail-change {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
 }
 </style>

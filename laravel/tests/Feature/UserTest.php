@@ -29,9 +29,10 @@ class UserTest extends TestCase
         $route = '/api/users/' . strval($user->id);
         $response = $this->put($route, [
             'name' => 'test',
-            'email' => 'test@test.com'
+            'email' => 'test@test.com',
+            'file' => "null"
         ]);
-        $response -> assertStatus(200);
+        $response->assertStatus(200);
 
         $user = User::find($user->id);
         $this->assertEquals($user->name, 'test');
@@ -48,7 +49,7 @@ class UserTest extends TestCase
 
         $route = '/api/users/' . strval($user->id);
         $response = $this->delete($route);
-        $response -> assertStatus(200);
+        $response->assertStatus(200);
         $this->assertEquals(0, User::count());
     }
 
@@ -62,6 +63,6 @@ class UserTest extends TestCase
 
         $route = '/api/users/' . strval($user->id);
         $response = $this->get($route);
-        $response -> assertOK();
+        $response->assertOK();
     }
 }

@@ -46,10 +46,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show()
     {
-        $authUser = User::find($id);
-        return $authUser;
+        //
     }
 
     /**
@@ -72,16 +71,21 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $thumbnailFile = $request -> file;
-        $fileName = 'thumbnail_' . Auth::id() . '.' . $thumbnailFile->getClientOriginalExtension();
-        $thumbnailFile->storeAs('public/profile_images/', $fileName);
-        $thumbnail = 'storage/profile_images/' . $fileName;
+        $user = User::find($id);
+        if ($request->file === "null") {
+            $thumbnail = $user->thumbnail;
+        } else {
+            $thumbnailFile = $request->file;
+            $fileName = 'thumbnail_' . Auth::id() . '.' . $thumbnailFile->getClientOriginalExtension();
+            $thumbnailFile->storeAs('public/profile_images/', $fileName);
+            $thumbnail = 'storage/profile_images/' . $fileName;
+        }
         $update = [
-            'name' => $request -> name,
-            'email' => $request -> email,
+            'name' => $request->name,
+            'email' => $request->email,
             'thumbnail' => $thumbnail,
         ];
-        User::find($id) -> update($update);
+        $user->update($update);
         return response("OK", 200);
     }
 
@@ -94,8 +98,8 @@ class UserController extends Controller
     public function destroy($id)
     {
         $deleteUser = User::find($id);
-        Whisper::where('user_id', $id) -> delete();
-        $deleteUser -> delete();
+        Whisper::where('user_id', $id)->delete();
+        $deleteUser->delete();
         return response("OK", 200);
     }
 }

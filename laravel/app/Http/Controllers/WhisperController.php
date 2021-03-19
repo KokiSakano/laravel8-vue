@@ -18,7 +18,7 @@ class WhisperController extends Controller
     {
         $whispers = Whisper::with('user')->latest()->paginate(10);
         $authId = Auth::id();
-        return array("whispers"=>$whispers, "loginUserId"=>$authId);
+        return array("whispers" => $whispers, "loginUserId" => $authId);
     }
 
     /**
@@ -55,16 +55,16 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show()
     {
-        $user = User::find($id);
-        $authId = Auth::id();
-        $whispers = Whisper::with('user')->
-        whereHas('user', function ($query) use ($user) {
-            $query->where('name', $user->name);
-        }
+        $user = Auth::user();
+        $whispers = Whisper::with('user')->whereHas(
+            'user',
+            function ($query) use ($user) {
+                $query->where('name', $user->name);
+            }
         )->latest()->paginate(10);
-        return array("whispers"=>$whispers, "loginUserId"=>$authId);
+        return array("whispers" => $whispers, "loginUser" => $user);
     }
 
     /**
@@ -88,9 +88,9 @@ class WhisperController extends Controller
     public function update(Request $request, $id)
     {
         $update = [
-            'whisp' => $request -> whisp,
+            'whisp' => $request->whisp,
         ];
-        Whisper::find($id) -> update($update);
+        Whisper::find($id)->update($update);
         return response("OK", 200);
     }
 
