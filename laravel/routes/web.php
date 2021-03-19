@@ -25,7 +25,11 @@ Route::get('/myprofile', function () {
     return view('/myprofile');
 });
 
+Route::get('/profile/{userId}', 'ViewController@profile');
+
 Route::middleware('auth')->get('/api/whispers/myprofile/', 'WhisperController@show');
+
+Route::middleware('auth')->get('/api/whispers/profile/{id}', 'WhisperController@showUser');
 
 Route::middleware('auth')->post('/api/whispers/', 'WhisperController@store');
 

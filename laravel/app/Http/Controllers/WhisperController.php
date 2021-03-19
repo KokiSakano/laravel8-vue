@@ -67,6 +67,19 @@ class WhisperController extends Controller
         return array("whispers" => $whispers, "loginUser" => $user);
     }
 
+    public function showUser($id)
+    {
+        $authUser = Auth::user();
+        $user = User::find($id);
+        $whispers = Whisper::with('user')->whereHas(
+            'user',
+            function ($query) use ($user) {
+                $query->where('name', $user->name);
+            }
+        )->latest()->paginate(10);
+        return array("whispers" => $whispers, "loginUser" => $authUser);
+    }
+
     /**
      * Show the form for editing the specified resource.
      *

@@ -24,8 +24,8 @@
                     <div class="card">
                         <div class="card-header">
                             <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
-                            <img class="thumbnail" src="default.png"/>
-                            {{ whisper.user.name }}
+                            <img @click="showProfile(whisper.user.id)" class="thumbnail" src="default.png"/>
+                            <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
                         </div>
                         <div class="card-body">
@@ -86,6 +86,9 @@
             change(page) {
             if (page >= 1 && page <= this.last_page) this.getWhisper(page)
             },
+            showProfile(userId){
+                location.href = "http://localhost/profile/"+userId;
+            }
         },
         created() {
             this.getWhisper(this.current_page);
