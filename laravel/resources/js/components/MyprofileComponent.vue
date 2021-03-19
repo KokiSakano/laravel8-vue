@@ -7,6 +7,7 @@
                         Profile
                     </div>
                     <div class="card-body">
+                        <a href="default.png" target="_blank"><img class="thumbnail" src="default.png" alt="" border="0" /></a>
                         <button @click="openProfileModal">
                             プロフィール変更
                         </button>
@@ -109,7 +110,7 @@
     export default {
         components: {
             EditprofileModal,
-            EditwhispModal
+            EditwhispModal,
         },
         data(){
             return {
