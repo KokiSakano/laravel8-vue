@@ -7,10 +7,10 @@
                         Profile
                     </div>
                     <div class="card-body">
-                        <button @click="openModal">
+                        <button @click="openProfileModal">
                             プロフィール変更
                         </button>
-                        <EditprofileModal @close="closeModal" v-if="modal">
+                        <EditprofileModal @close="closeProfileModal" v-if="modalProfile">
                             <p slot="header"> プロフィール変更 </p>
                             <div slot="body">
                                 <div class="card-body">
@@ -75,6 +75,7 @@
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdown1">
                                             <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                                            <button class="dropdown-item" type="button" @click="openWhisperModal(whisper)">編集</button>
                                         </div>
                                     </div>
                                 </div>
@@ -87,6 +88,16 @@
                     </ul>
                 </div>
             </div>
+            <EditwhispModal @close="closeWhisperModal" v-if="modalWhisper">
+                <p slot="header"> Whisp変更 </p>
+                <div slot="body">
+                    <p>変更前:{{whispEdit.whisp}}</p> <br />
+                    <p>変更後:<input type="text" class="form-control" v-model="whispForm"></p>
+                </div>
+                <button slot="footer" @click="changeWhisp()">
+                OK
+                </button>
+            </EditwhispModal>
         </div>
     </div>
 </template>
@@ -94,22 +105,29 @@
 <script>
     import moment from "moment"
     import EditprofileModal from "./EditprofileModal";
+    import EditwhispModal from "./EditwhispModal";
     export default {
-        components: {EditprofileModal},
+        components: {
+            EditprofileModal,
+            EditwhispModal
+        },
         data(){
             return {
                 loading: true,
                 errored: false,
                 error: null,
-                modal: false,
+                modalProfile: false,
+                modalWhisper: false,
                 whispers: null,
                 authId: null,
                 loginUser: null,
                 thumbnail: null,
                 thumbnailFlag: false,
                 file: null,
+                whispEdit: null,
                 nameForm: null,
                 emailForm: null,
+                whispForm: null,
                 passwordForm: "まだ対応してないよ。",
                 deleteForm: null,
                 current_page: 1,
@@ -124,7 +142,6 @@
                 axios.get('/api/whispers/myprofile?page='+page).then((result)=>
                     {
                         this.whispers = result.data["whispers"].data;
-                        console.log(this.whispers[0].user.thumbnail)
                         this.thumbnail = this.whispers[0]["user"]["thumbnail"];
                         this.current_page = result.data["whispers"].current_page;
                         this.last_page = result.data["whispers"].last_page;
@@ -154,6 +171,19 @@
                     .finally(() => (this.loading = false)
                 );
             },
+            editWhisper(id){
+                axios.put("/api/whispers/" + id, {
+                    whisp: this.whispForm,
+                }).then(() =>
+                    {
+                        this.getWhisper(this.current_page);
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
+                );
+            },
             displayTime(time){
                 const timeMoment = moment(time);
                 const nowMoment = moment(new Date());
@@ -165,12 +195,19 @@
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },
-            openModal() {
-                this.modal = true
+            openProfileModal() {
+                this.modalProfile = true;
             },
-            closeModal() {
-                this.modal = false;
+            closeProfileModal() {
+                this.modalProfile = false;
                 this.thumbnailFlag = false;
+            },
+            openWhisperModal(whisper) {
+                this.modalWhisper = true;
+                this.whispEdit = whisper;
+            },
+            closeWhisperModal() {
+                this.modalWhisper = false;
             },
             changeImage(e) {
                 const files = e.target.files;
@@ -191,7 +228,13 @@
                 else if (this.loginUser["name"] !== this.nameForm || this.thumbnailFlag){
                     this.editUser();
                 }
-                this.closeModal();
+                this.closeProfileModal();
+            },
+            changeWhisp() {
+                if (this.whispEdit.whisp !== this.whispForm){
+                    this.editWhisper(this.whispEdit.id);
+                }
+                this.closeWhisperModal();
             },
             editUser(){
                 let formData = new FormData();
