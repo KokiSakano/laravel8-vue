@@ -1,10 +1,11 @@
 <?php
 
 namespace Tests\Feature;
+
+use App\Models\User;
+use Illuminate\Foundation\Testing\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
-use App\Models\User;
-
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -18,19 +19,26 @@ class AuthenticationTest extends TestCase
     ];
 
     /**
+     * アクセス可能テスト
+     */
+    public function testAccess(): void
+    {
+        $this->get('/')->assertStatus(200);
+    }
+
+    /**
      * 登録テスト
      */
-    public function testRegister():void
+    public function testRegister(): void
     {
-        $this->post('/register', [
+        $response = $this->post('/register', [
             'name' => $this->user['name'],
             'email' => $this->user['email'],
             'password' => $this->user['password'],
             'password_confirmation' => $this->user['password'],
         ]);
-        $response = $this->get('/');
-        $response
-            ->assertStatus(200);
+        $response->assertStatus(302)
+            ->assertRedirect(route('home'));
     }
 
     /**
@@ -38,13 +46,21 @@ class AuthenticationTest extends TestCase
      */
     public function testLogin(): void
     {
-        $this -> post('/login', [
+        // ユーザー登録
+        User::factory()->create([
+            'email' => $this->user['email'],
+            'password' => \Hash::make($this->user['password']),
+        ]);
+
+        $response = $this->post('/login', [
             'email' => $this->user['email'],
             'password' => $this->user['password'],
         ]);
 
-        $response = $this->get('/');
-        $response ->assertStatus(200);
+        $response->assertStatus(302)
+            ->assertRedirect(route('home'));
+
+        $this->assertAuthenticated();
     }
 
     /**
@@ -57,8 +73,8 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
 
         $response = $this->post('/logout');
-        $response = $this->get('/');
-        $response->assertStatus(200);
+        $response->assertStatus(302)
+            ->assertRedirect("/");
         $this->assertGuest();
     }
 }

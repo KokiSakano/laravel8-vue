@@ -22,6 +22,11 @@ class DatabaseTest extends TestCase
         ];
         $saveUser = $testUser -> fill($newdata) -> save();
         $this->assertTrue($saveUser);
+
+        $this->assertDatabaseHas('users', [
+            'name' => $testUser->name,
+            'email' => $testUser->email,
+        ]);
     }
     public function testWhisperDatabase()
     {
