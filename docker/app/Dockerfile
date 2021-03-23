@@ -14,6 +14,8 @@ zip \
 unzip \
 vim
 RUN apt-get update \
-    && apt-get install -y libpq-dev \
+    && apt-get install -y libpq-dev libfreetype6-dev libjpeg62-turbo-dev libpng-dev\
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo pdo_pgsql
 WORKDIR /var/www/html

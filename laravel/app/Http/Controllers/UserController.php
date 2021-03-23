@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -73,17 +74,18 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if ($request->file === "null") {
-            $thumbnail = $user->thumbnail;
+            $fileName = $user->thumbnail;
         } else {
             $thumbnailFile = $request->file;
-            $fileName = 'thumbnail_' . Auth::id() . '.' . $thumbnailFile->getClientOriginalExtension();
-            $thumbnailFile->storeAs('public/profile_images/', $fileName);
-            $thumbnail = 'storage/profile_images/' . $fileName;
+            $extention = $thumbnailFile->getClientOriginalExtension();
+            $fileName = 'profile_images/thumbnail_' . Auth::id() . '.' . $extention;
+            $thumbnailFile = \Image::make($thumbnailFile)->resize(100, 100)->encode($extention);
+            Storage::cloud()->put($fileName, $thumbnailFile);
         }
         $update = [
             'name' => $request->name,
             'email' => $request->email,
-            'thumbnail' => $thumbnail,
+            'thumbnail' => $fileName,
         ];
         $user->update($update);
         return response("OK", 200);

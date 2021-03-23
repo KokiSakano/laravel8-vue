@@ -17,7 +17,7 @@
                                 <div class="card-body">
                                     <h4 class="card-title">プロフィール画像変更</h4>
                                     <input type="file" accept="image/*" @change="changeImage($event)">
-                                    <!--img class="thumbnail-change" :src="thumbnail" v-if="thumbnail"-->
+                                    <img class="thumbnail-change" :src="thumbnail" v-if="thumbnail">
                                     <img class="thumbnail-change" src="default.png">
                                 </div>
                                 <tr>
@@ -243,6 +243,7 @@
                 formData.append("email", this.emailForm);
                 formData.append("password", this.passwordForm);
                 formData.append("file", this.file);
+                console.log(this.file);
                 axios.post('/api/users/' + this.loginUser["id"], formData, {
                     headers: {
                         'X-HTTP-Method-Override': 'PUT'
