@@ -27,8 +27,7 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
-                            <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
-                            <img @click="showProfile(whisper.user.id)" class="thumbnail" src="default.png"/>
+                            <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
                             <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
                             <div v-if="whisper.user_id === authId">
@@ -88,7 +87,8 @@
                 last_page: 1,
                 total: 1,
                 from: 0,
-                to: 0
+                to: 0,
+                imgPath: [],
             };
         },
         methods:{
@@ -102,6 +102,7 @@
                         this.total = result.data["whispers"].total;
                         this.from = result.data["whispers"].from;
                         this.to = result.data["whispers"].to;
+                        this.imgPath = result.data["imgPath"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);

@@ -7,7 +7,7 @@
                         Profile
                     </div>
                     <div class="card-body">
-                        <a href="default.png" target="_blank"><img class="thumbnail" src="default.png" alt="" border="0" /></a>
+                        <a :href="imgPath[authId]" target="_blank"><img class="thumbnail" :src="imgPath[authId]" alt="" border="0" /></a>
                         <button @click="openProfileModal">
                             プロフィール変更
                         </button>
@@ -17,8 +17,7 @@
                                 <div class="card-body">
                                     <h4 class="card-title">プロフィール画像変更</h4>
                                     <input type="file" accept="image/*" @change="changeImage($event)">
-                                    <img class="thumbnail-change" :src="thumbnail" v-if="thumbnail">
-                                    <img class="thumbnail-change" src="default.png">
+                                    <img class="thumbnail-change" :src="imgPath[authId]" v-if="thumbnail">
                                 </div>
                                 <tr>
                                     <td align="right"><b>name:</b></td>
@@ -63,7 +62,7 @@
                             <div v-if="whisper.user_id === authId" class="card">
                                 <div class="card-header">
                                     <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
-                                    <img class="thumbnail" src="default.png"/>
+                                    <img class="thumbnail" :src="imgPath[authId]"/>
                                     {{ whisper.user.name }}
                                     <a id="time">{{ displayTime(whisper.created_at) }}</a>
                                     <div class="dropdown" id="somefunc">
@@ -135,7 +134,8 @@
                 last_page: 1,
                 total: 1,
                 from: 0,
-                to: 0
+                to: 0,
+                imgPath: {},
             }
         },
         methods: {
@@ -153,6 +153,7 @@
                         this.authId = this.loginUser["id"];
                         this.nameForm = this.loginUser["name"];
                         this.emailForm = this.loginUser["email"];
+                        this.imgPath = result.data["imgPath"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -265,7 +266,7 @@
                     })
                     .finally(() => (this.loading = false)
                 );
-            }
+            },
         },
         mounted() {
             this.getWhisper(this.current_page);

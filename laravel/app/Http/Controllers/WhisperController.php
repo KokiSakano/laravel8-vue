@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class WhisperController extends Controller
 {
@@ -18,7 +19,14 @@ class WhisperController extends Controller
     {
         $whispers = Whisper::with('user')->latest()->paginate(10);
         $authId = Auth::id();
-        return array("whispers" => $whispers, "loginUserId" => $authId);
+        $imgPath = [];
+        foreach ($whispers as $whisper) {
+            $imgPath[$whisper->user->id] = Storage::cloud()->temporaryUrl(
+                $whisper->user->thumbnail,
+                now()->addHour()
+            );
+        };
+        return array("whispers" => $whispers, "loginUserId" => $authId, "imgPath" => $imgPath);
     }
 
     /**
@@ -64,7 +72,13 @@ class WhisperController extends Controller
                 $query->where('name', $user->name);
             }
         )->latest()->paginate(10);
-        return array("whispers" => $whispers, "loginUser" => $user);
+        $imgPath = [
+            $user->id => Storage::cloud()->temporaryUrl(
+                $user->thumbnail,
+                now()->addHour()
+            )
+        ];
+        return array("whispers" => $whispers, "loginUser" => $user, "imgPath" => $imgPath);
     }
 
     public function showUser($id)
@@ -77,7 +91,13 @@ class WhisperController extends Controller
                 $query->where('name', $user->name);
             }
         )->latest()->paginate(10);
-        return array("whispers" => $whispers, "loginUser" => $authUser);
+        $imgPath = [
+            $user->id => Storage::cloud()->temporaryUrl(
+                $user->thumbnail,
+                now()->addHour()
+            )
+        ];
+        return array("whispers" => $whispers, "loginUser" => $authUser, "imgPath" => $imgPath);
     }
 
     /**

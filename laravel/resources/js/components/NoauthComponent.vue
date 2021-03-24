@@ -23,8 +23,7 @@
                 <div v-for="whisper in whispers" :key="whisper.id">
                     <div class="card">
                         <div class="card-header">
-                            <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
-                            <img @click="showProfile(whisper.user.id)" class="thumbnail" src="default.png"/>
+                            <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
                             <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
                             <a id="time">{{ displayTime(whisper.created_at) }}</a>
                         </div>
@@ -52,19 +51,21 @@
                 last_page: 1,
                 total: 1,
                 from: 0,
-                to: 0
+                to: 0,
+                imgPath: [],
             };
         },
         methods:{
             getWhisper(page){
                 axios.get('/api/whispers/noauth?page='+page).then((result)=>
                     {
-                        this.whispers = result.data.data;
-                        this.current_page = result.data.current_page;
-                        this.last_page = result.data.last_page;
-                        this.total = result.data.total;
-                        this.from = result.data.from;
-                        this.to = result.data.to;
+                        this.whispers = result.data["whispers"].data;
+                        this.current_page = result.data["whispers"].current_page;
+                        this.last_page = result.data["whispers"].last_page;
+                        this.total = result.data["whispers"].total;
+                        this.from = result.data["whispers"].from;
+                        this.to = result.data["whispers"].to;
+                        this.imgPath = result.data["imgPath"];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);

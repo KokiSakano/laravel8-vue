@@ -1,8 +1,9 @@
 <?php
 
+use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\Whisper;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +25,15 @@ Route::delete('/whispers/{id}', 'WhisperController@destroy');
 Route::put('/whispers/{id}', 'WhisperController@update');
 
 Route::get('/whispers/noauth/', function () {
-    return Whisper::with('user')->latest()->paginate(10);
+    $whispers = Whisper::with('user')->latest()->paginate(10);
+    $imgPath = [];
+    foreach ($whispers as $whisper) {
+        $imgPath[$whisper->user->id] = Storage::cloud()->temporaryUrl(
+            $whisper->user->thumbnail,
+            now()->addHour()
+        );
+    };
+    return array("whispers" => $whispers, "imgPath" => $imgPath);
 });
 
 Route::delete('/users/{id}', 'UserController@destroy');
