@@ -57,7 +57,6 @@
                 errored: false,
                 error: null,
                 whispers: null,
-                loginUser: null,
                 thumbnail: null,
                 current_page: 1,
                 last_page: 1,
@@ -78,7 +77,6 @@
                         this.total = result.data["whispers"].total;
                         this.from = result.data["whispers"].from;
                         this.to = result.data["whispers"].to;
-                        this.loginUser = result.data["loginUser"];
                         this.imgPath = result.data["imgPath"];
                     })
                     .catch(err => {

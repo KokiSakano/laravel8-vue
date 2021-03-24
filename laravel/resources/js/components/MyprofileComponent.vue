@@ -17,7 +17,7 @@
                                 <div class="card-body">
                                     <h4 class="card-title">プロフィール画像変更</h4>
                                     <input type="file" accept="image/*" @change="changeImage($event)">
-                                    <img class="thumbnail-change" :src="imgPath[authId]" v-if="thumbnail">
+                                    <img class="thumbnail-change" :src="cThumbnail" v-if="thumbnail">
                                 </div>
                                 <tr>
                                     <td align="right"><b>name:</b></td>
@@ -61,7 +61,6 @@
                         <div v-for="whisper in whispers" :key="whisper.id">
                             <div v-if="whisper.user_id === authId" class="card">
                                 <div class="card-header">
-                                    <!--img class="thumbnail" :src="whisper.user.thumbnail" width="10" height="10"/-->
                                     <img class="thumbnail" :src="imgPath[authId]"/>
                                     {{ whisper.user.name }}
                                     <a id="time">{{ displayTime(whisper.created_at) }}</a>
@@ -136,6 +135,7 @@
                 from: 0,
                 to: 0,
                 imgPath: {},
+                cThumbnail: null,
             }
         },
         methods: {
@@ -154,6 +154,7 @@
                         this.nameForm = this.loginUser["name"];
                         this.emailForm = this.loginUser["email"];
                         this.imgPath = result.data["imgPath"];
+                        this.cThumbnail = this.imgPath[this.authId];
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -218,7 +219,7 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         this.thumbnailFlag = true
-                        this.thumbnail = e.target.result;
+                        this.cThumbnail = e.target.result;
                     };
                     reader.readAsDataURL(this.file);
                 }
@@ -244,7 +245,6 @@
                 formData.append("email", this.emailForm);
                 formData.append("password", this.passwordForm);
                 formData.append("file", this.file);
-                console.log(this.file);
                 axios.post('/api/users/' + this.loginUser["id"], formData, {
                     headers: {
                         'X-HTTP-Method-Override': 'PUT'

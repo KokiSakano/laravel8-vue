@@ -28,9 +28,9 @@ Route::get('/whispers/noauth/', function () {
     $whispers = Whisper::with('user')->latest()->paginate(10);
     $imgPath = [];
     foreach ($whispers as $whisper) {
-        $imgPath[$whisper->user->id] = Storage::cloud()->temporaryUrl(
+        $imgPath[$whisper->user->id] = Storage::disk('minio1')->temporaryUrl(
             $whisper->user->thumbnail,
-            now()->addHour()
+            now()->addSecond(1)
         );
     };
     return array("whispers" => $whispers, "imgPath" => $imgPath);

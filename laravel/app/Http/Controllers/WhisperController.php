@@ -21,9 +21,9 @@ class WhisperController extends Controller
         $authId = Auth::id();
         $imgPath = [];
         foreach ($whispers as $whisper) {
-            $imgPath[$whisper->user->id] = Storage::cloud()->temporaryUrl(
+            $imgPath[$whisper->user->id] = Storage::disk('minio1')->temporaryUrl(
                 $whisper->user->thumbnail,
-                now()->addHour()
+                now()->addMinutes(1)
             );
         };
         return array("whispers" => $whispers, "loginUserId" => $authId, "imgPath" => $imgPath);
@@ -73,9 +73,9 @@ class WhisperController extends Controller
             }
         )->latest()->paginate(10);
         $imgPath = [
-            $user->id => Storage::cloud()->temporaryUrl(
+            $user->id => Storage::disk('minio1')->temporaryUrl(
                 $user->thumbnail,
-                now()->addHour()
+                now()->addSecond(1)
             )
         ];
         return array("whispers" => $whispers, "loginUser" => $user, "imgPath" => $imgPath);
@@ -83,7 +83,6 @@ class WhisperController extends Controller
 
     public function showUser($id)
     {
-        $authUser = Auth::user();
         $user = User::find($id);
         $whispers = Whisper::with('user')->whereHas(
             'user',
@@ -92,12 +91,12 @@ class WhisperController extends Controller
             }
         )->latest()->paginate(10);
         $imgPath = [
-            $user->id => Storage::cloud()->temporaryUrl(
+            $user->id => Storage::disk('minio1')->temporaryUrl(
                 $user->thumbnail,
-                now()->addHour()
+                now()->addSecond(1)
             )
         ];
-        return array("whispers" => $whispers, "loginUser" => $authUser, "imgPath" => $imgPath);
+        return array("whispers" => $whispers, "imgPath" => $imgPath);
     }
 
     /**
