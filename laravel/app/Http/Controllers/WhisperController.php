@@ -48,6 +48,9 @@ class WhisperController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $request->validate([
+            'whisper' => 'required|max:120',
+        ]);
         $newdata = [
             'whisp' => $request->whisper,
             'user_id' => $user->id,
@@ -119,6 +122,10 @@ class WhisperController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        $request->validate([
+            'whisp' => 'required|max:120',
+        ]);
         $update = [
             'whisp' => $request->whisp,
         ];

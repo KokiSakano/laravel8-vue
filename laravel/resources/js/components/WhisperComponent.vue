@@ -5,20 +5,6 @@
             <button type="submit" class="btn btn-primary" id="btn-whisper" @click="postWhisper">Whisper</button>
         </div>
         <div class="card-header"> Whisper </div>
-        <div class="row">
-            <div class="col-sm-6">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
-                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
-                    <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
-                        <a class="page-link" href="#" @click="change(page)">{{page}}</a>
-                    </li>
-                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
-                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
-                </ul>
-            </div>
-            <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
-        </div>
         <p v-if="errored">{{ error }}</p>
         <p v-if="loading">Loading...</p>
         <div v-else>
@@ -56,13 +42,27 @@
             <EditwhispModal @close="closeModal" v-if="modal">
                 <p slot="header"> Whisp変更 </p>
                 <div slot="body">
-                    <p>変更前:{{whispEdit.whisp}}</p> <br />
-                    <p>変更後:<input type="text" class="form-control" v-model="whispForm"></p>
+                    <p>Whisp:<input type="text" class="form-control" v-model="whispForm" :placeholder="whispEdit.whisp"></p>
                 </div>
                 <button slot="footer" @click="changeWhisp()">
                 OK
                 </button>
             </EditwhispModal>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
+                    <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
+                    <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
+                        <a class="page-link" href="#" @click="change(page)">{{page}}</a>
+                    </li>
+                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
+                    <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
+                </ul>
+            </div>
+            <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
         </div>
     </div>
 </template>
@@ -114,10 +114,17 @@
                 var data = {
                     whisper: this.whisperForm
                 };
-                if (!!data["whisper"]) {
+                if (!data["whisper"]){
+                    alert("何か入力してください。");
+                }
+                else if(data["whisper"].length>120){
+                    alert("文字列が長すぎます。120文字以下にして下さい。");
+                }
+                else {
                     axios.post('/api/whispers/', data).then(() =>
                         {
                             this.getWhisper(this.current_page);
+                            this.whisperForm = "";
                         })
                         .catch(err => {
                             (this.errored = true), (this.error = err);
@@ -125,7 +132,6 @@
                         .finally(() => (this.loading = false)
                     );
                 }
-                this.whisperForm = "";
             },
             deleteWhisper(id){
                 var data = {};
@@ -140,17 +146,22 @@
                 );
             },
             editWhisper(id){
-                axios.put("/api/whispers/" + id, {
-                    whisp: this.whispForm,
-                }).then(() =>
-                    {
-                        this.getWhisper(this.current_page);
-                    })
-                    .catch(err => {
-                        (this.errored = true), (this.error = err);
-                    })
-                    .finally(() => (this.loading = false)
-                );
+                if(this.whispForm.length>120){
+                    alert("文字列が長すぎます。120文字以下にして下さい。");
+                }
+                else{
+                    axios.put("/api/whispers/" + id, {
+                        whisp: this.whispForm,
+                    }).then(() =>
+                        {
+                            this.getWhisper(this.current_page);
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
             },
             displayTime(time){
                 const timeMoment = moment(time);
@@ -159,7 +170,7 @@
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
-                if (unit === "year" || unit ==="months") return timeMoment.format("YYY/MM/DD");
+                if (unit === "year" || unit ==="months") return timeMoment.format("YY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },

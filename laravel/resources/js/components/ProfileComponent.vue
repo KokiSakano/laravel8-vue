@@ -11,18 +11,6 @@
                     </div>
                     <div>{{WatchUser.name}}</div>
                 </div>
-                <div class="col-sm-6">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
-                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
-                        <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
-                            <a class="page-link" href="#" @click="change(page)">{{page}}</a>
-                        </li>
-                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
-                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
-                    </ul>
-                </div>
-                <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
                 <p v-if="errored">{{ error }}</p>
                 <p v-if="loading">Loading...</p>
                 <div v-else>
@@ -42,6 +30,19 @@
                         </div>
                     </ul>
                 </div>
+
+                <div class="col-sm-6">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
+                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
+                        <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
+                            <a class="page-link" href="#" @click="change(page)">{{page}}</a>
+                        </li>
+                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
+                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
+                    </ul>
+                </div>
+                <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
             </div>
         </div>
     </div>
@@ -92,7 +93,7 @@
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
-                if (unit === "year" || unit ==="months") return timeMoment.format("YYY/MM/DD");
+                if (unit === "year" || unit ==="months") return timeMoment.format("YY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },
