@@ -17,7 +17,7 @@
                                 <div class="card-body">
                                     <h4 class="card-title">プロフィール画像変更</h4>
                                     <input type="file" accept="image/*" @change="changeImage($event)">
-                                    <img class="thumbnail-change" :src="cThumbnail" v-if="thumbnail">
+                                    <img class="thumbnail-change" :src="cThumbnail">
                                 </div>
                                 <tr>
                                     <td align="right"><b>name:</b></td>
@@ -120,7 +120,6 @@
                 whispers: null,
                 authId: null,
                 loginUser: null,
-                thumbnail: null,
                 thumbnailFlag: false,
                 file: null,
                 whispEdit: null,
@@ -142,19 +141,18 @@
             getWhisper(page){
                 axios.get('/api/whispers/myprofile?page='+page).then((result)=>
                     {
-                        this.whispers = result.data["whispers"].data;
-                        this.thumbnail = this.whispers[0]["user"]["thumbnail"];
-                        this.current_page = result.data["whispers"].current_page;
-                        this.last_page = result.data["whispers"].last_page;
-                        this.total = result.data["whispers"].total;
-                        this.from = result.data["whispers"].from;
-                        this.to = result.data["whispers"].to;
                         this.loginUser = result.data["loginUser"];
                         this.authId = this.loginUser["id"];
                         this.nameForm = this.loginUser["name"];
                         this.emailForm = this.loginUser["email"];
                         this.imgPath = result.data["imgPath"];
                         this.cThumbnail = this.imgPath[this.authId];
+                        this.whispers = result.data["whispers"].data;
+                        this.current_page = result.data["whispers"].current_page;
+                        this.last_page = result.data["whispers"].last_page;
+                        this.total = result.data["whispers"].total;
+                        this.from = result.data["whispers"].from;
+                        this.to = result.data["whispers"].to;
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
