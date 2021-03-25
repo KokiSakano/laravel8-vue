@@ -42,10 +42,11 @@
                         </EditprofileModal>
                     </div>
                 </div>
-                <p v-if="errored">{{ error }}</p>
-                <p v-if="loading">Loading...</p>
-                <div v-else>
-                    <ul>
+                <div class="card">
+                    <div class="card-header"> Whisper </div>
+                    <p v-if="errored">{{ error }}</p>
+                    <p v-if="loading">Loading...</p>
+                    <div v-else>
                         <div v-for="whisper in whispers" :key="whisper.id">
                             <div v-if="whisper.user_id === authId" class="card">
                                 <div class="card-header">
@@ -69,23 +70,22 @@
                                 <div class="card-body">
                                     {{ whisper.whisp }}
                                 </div>
-                                <br />
                             </div>
                         </div>
-                    </ul>
+                    </div>
+                    <div class="col-sm-6">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
+                            <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
+                            <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
+                                <a class="page-link" href="#" @click="change(page)">{{page}}</a>
+                            </li>
+                            <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
+                            <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
                 </div>
-                <div class="col-sm-6">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
-                        <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
-                        <li v-for="page in pages" :key="page" class="page-item" :class="{active: page === current_page}">
-                            <a class="page-link" href="#" @click="change(page)">{{page}}</a>
-                        </li>
-                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(current_page + 1)">&gt;</a></li>
-                        <li class="page-item" :class="{disabled: current_page >= last_page}"><a class="page-link" href="#" @click="change(last_page)">&raquo;</a></li>
-                    </ul>
-                </div>
-                <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
             </div>
             <EditwhispModal @close="closeWhisperModal" v-if="modalWhisper">
                 <p slot="header"> Whisp変更 </p>
@@ -197,7 +197,7 @@
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
-                if (unit === "year" || unit ==="months") return timeMoment.format("YY/MM/DD");
+                if (unit === "year" || unit ==="months") return timeMoment.format("YYYY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },

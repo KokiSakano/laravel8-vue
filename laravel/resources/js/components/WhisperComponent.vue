@@ -8,37 +8,33 @@
         <p v-if="errored">{{ error }}</p>
         <p v-if="loading">Loading...</p>
         <div v-else>
-            <ul>
-                <br />
-                <div v-for="whisper in whispers" :key="whisper.id">
-                    <div class="card">
-                        <div class="card-header">
-                            <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
-                            <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
-                            <a id="time">{{ displayTime(whisper.created_at) }}</a>
-                            <div v-if="whisper.user_id === authId">
-                                <div class="dropdown" id="somefunc">
-                                    <button type="button" id="dropdown1"
-                                        class="btn btn-secondary dropdown-toggle"
-                                        data-toggle="dropdown"
-                                        aria-haspopup="true"
-                                        aria-expanded="false">
-                                        ⋮
-                                    </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdown1">
-                                        <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
-                                        <button class="dropdown-item" type="button" @click="openModal(whisper)">編集</button>
-                                    </div>
+            <div v-for="whisper in whispers" :key="whisper.id">
+                <div class="card mx-auto">
+                    <div class="card-header">
+                        <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
+                        <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
+                        <a id="time">{{ displayTime(whisper.created_at) }}</a>
+                        <div v-if="whisper.user_id === authId">
+                            <div class="dropdown" id="somefunc">
+                                <button type="button" id="dropdown1"
+                                    class="btn btn-secondary dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                    ⋮
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdown1">
+                                    <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
+                                    <button class="dropdown-item" type="button" @click="openModal(whisper)">編集</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            {{ whisper.whisp }}
-                        </div>
                     </div>
-                    <br />
+                    <div class="card-body">
+                        {{ whisper.whisp }}
+                    </div>
                 </div>
-            </ul>
+            </div>
             <EditwhispModal @close="closeModal" v-if="modal">
                 <p slot="header"> Whisp変更 </p>
                 <div slot="body">
@@ -51,7 +47,7 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-6 mx-auto">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(1)">&laquo;</a></li>
                     <li class="page-item" :class="{disabled: current_page <= 1}"><a class="page-link" href="#" @click="change(current_page - 1)">&lt;</a></li>
@@ -170,7 +166,7 @@
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
-                if (unit === "year" || unit ==="months") return timeMoment.format("YY/MM/DD");
+                if (unit === "year" || unit ==="months") return timeMoment.format("YYYY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },

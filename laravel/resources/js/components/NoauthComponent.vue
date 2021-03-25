@@ -4,22 +4,18 @@
         <p v-if="errored">{{ error }}</p>
         <p v-if="loading">Loading...</p>
         <div v-else>
-            <ul>
-                <br />
-                <div v-for="whisper in whispers" :key="whisper.id">
-                    <div class="card">
-                        <div class="card-header">
-                            <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
-                            <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
-                            <a id="time">{{ displayTime(whisper.created_at) }}</a>
-                        </div>
-                        <div class="card-body">
-                            {{ whisper.whisp }}
-                        </div>
+            <div v-for="whisper in whispers" :key="whisper.id">
+                <div class="card">
+                    <div class="card-header">
+                        <img @click="showProfile(whisper.user.id)" class="thumbnail" :src="imgPath[whisper.user.id]"/>
+                        <a @click="showProfile(whisper.user.id)">{{ whisper.user.name }}</a>
+                        <a id="time">{{ displayTime(whisper.created_at) }}</a>
                     </div>
-                    <br />
+                    <div class="card-body">
+                        {{ whisper.whisp }}
+                    </div>
                 </div>
-            </ul>
+            </div>
         </div>
 
         <div class="row">
@@ -81,7 +77,7 @@
                 const unit = timeUnits.filter(timeUnit => {
                     return nowMoment.diff(timeMoment, timeUnit) != 0;
                 })[0];
-                if (unit === "year" || unit ==="months") return timeMoment.format("YY/MM/DD");
+                if (unit === "year" || unit ==="months") return timeMoment.format("YYYY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },
