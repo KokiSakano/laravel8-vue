@@ -26,7 +26,7 @@ class WhisperFactory extends Factory
         return [
             'user_id' => $user->id,
             'whisp' => $this->faker->sentence,
-            'good' => rand(0, 5),
+            'good' => 0,
         ];
     }
 }
