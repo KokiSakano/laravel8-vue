@@ -25,6 +25,14 @@
                                 </div>
                                 <div class="card-body">
                                     {{ whisper.whisp }}
+                                    <div class="text-right">
+                                        <a @click="doGood(whisper.id)">
+                                            <i class="fas fa-star" :class="[goodOrNot(whisper.id)? 'unlike-btn' : 'like-btn']" />
+                                        </a>
+                                        <a>
+                                            {{ whisper.good }}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -51,7 +59,7 @@
 <script>
     import moment from "moment"
     export default {
-        props: ['WatchUser'],
+        props: ['WatchUser', 'AuthUser'],
         data(){
             return {
                 loading: true,
@@ -65,6 +73,7 @@
                 from: 0,
                 to: 0,
                 imgPath: {},
+                goodArr: [],
             }
         },
         methods: {
@@ -86,6 +95,14 @@
                     .finally(() => (this.loading = false)
                 );
             },
+            getAuthGood(){
+                if(this.AuthUser!="null")
+                axios.get('/api/good/').then((result)=>
+                    {
+                        this.goodArr = Object.keys(result.data).map(function (key) {return result.data[key]});
+                    }
+                );
+            },
             displayTime(time){
                 const timeMoment = moment(time);
                 const nowMoment = moment(new Date());
@@ -97,9 +114,45 @@
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
             },
+            doGood(id){
+                if (this.goodOrNot(id)){
+                    axios.post("/api/good/m/"+id).then(() =>
+                        {
+                            this.getWhisper(this.current_page);
+                            this.getAuthGood();
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
+                else{
+                    axios.post("/api/good/p/"+id).then(() =>
+                        {
+                            this.getWhisper(this.current_page);
+                            this.getAuthGood();
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
+            },
+            goodOrNot(id){
+                if (this.AuthUser==null) return false;
+                var flag = false;
+                if(this.goodArr.includes(id)){
+                    flag=true;
+                }
+                return flag;
+            },
         },
         mounted() {
             this.getWhisper(this.current_page);
+            this.getAuthGood();
+            console.log(this.AuthUser);
         },
         computed: {
         pages() {
@@ -112,14 +165,25 @@
     }
 </script>
 <style>
-.thumbnail {
-    border-radius: 50%;
-    width:  50px;
-    height: 50px;
-}
-.thumbnail-change {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-}
+    .thumbnail {
+        border-radius: 50%;
+        width:  50px;
+        height: 50px;
+    }
+
+    .like-btn {
+    width: 25px;
+    height: 30px;
+    font-size: 25px;
+    color: #808080; 
+    margin-left: 20px;
+    }
+
+    .unlike-btn {
+    width: 25px;
+    height: 30px;
+    font-size: 25px;
+    color: #e54747;
+    margin-left: 20px;
+    }
 </style>

@@ -64,3 +64,10 @@ Route::middleware('auth')->post('/api/whispers/', 'WhisperController@store');
 Route::delete('/api/users/{id}', 'UserController@destroy');
 
 Route::middleware('auth')->put('/api/users/{id}', 'UserController@update');
+
+// good
+Route::middleware('auth')->get('api/good/', 'GoodController@index');
+
+Route::middleware('auth')->post('api/good/p/{id}', 'GoodController@store');
+
+Route::middleware('auth')->post('api/good/m/{id}', 'GoodController@deStore');

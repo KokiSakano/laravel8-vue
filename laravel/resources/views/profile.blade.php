@@ -4,6 +4,10 @@
 @if ($userInfo->id==Auth::id())
 <myprofile-component></myprofile-component>
 @else
-<profile-component :watch-user="{{$userInfo}}"></profile-component>
+@if (Auth::check())
+<profile-component :watch-user="{{$userInfo}}" :auth-user="{{Auth::user()}}"></profile-component>
+@else
+<profile-component :watch-user="{{$userInfo}}" :auth-user="{{'null'}}"></profile-component>
+@endif
 @endif
 @endsection

@@ -13,6 +13,14 @@
                     </div>
                     <div class="card-body">
                         {{ whisper.whisp }}
+                        <div class="text-right">
+                            <a>
+                                <i class="fas fa-star like-btn" />
+                            </a>
+                            <a>
+                                {{ whisper.good }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,5 +120,12 @@
     border-radius: 50%;
     width:  50px;
     height: 50px;
+    }
+    .like-btn {
+    width: 25px;
+    height: 30px;
+    font-size: 25px;
+    color: #808080; 
+    margin-left: 20px;
     }
 </style>
