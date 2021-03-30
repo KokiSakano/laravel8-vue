@@ -11,7 +11,6 @@ class Whisper extends Model
     protected $fillable = [
         'whisp',
         'user_id',
-        'user_name',
         'good',
     ];
 
