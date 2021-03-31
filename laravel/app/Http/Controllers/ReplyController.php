@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reply;
 use App\Models\User;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-class UserController extends Controller
+class ReplyController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,7 +18,15 @@ class UserController extends Controller
      */
     public function index($id)
     {
-        //
+        $replies = Reply::where('whisper_id', $id)->with('user')->orderBy('created_at')->get();
+        $imgPath = [];
+        foreach ($replies as $reply) {
+            $imgPath[$reply->user->id] = Storage::disk('minio1')->temporaryUrl(
+                $reply->user->thumbnail,
+                now()->addhour(1)
+            );
+        };
+        return array("replies" => $replies, "imgPath" => $imgPath);
     }
 
     /**
@@ -38,16 +47,27 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $userId = Auth::id();
+        $request->validate([
+            'reply' => 'required|max:120',
+        ]);
+        $newdata = [
+            "user_id" => $userId,
+            "whisper_id" => $request->id,
+            "whisp" => $request->reply,
+            "good" => 0,
+        ];
+        Reply::create($newdata);
+        return Response('OK', 200);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Reply  $reply
      * @return \Illuminate\Http\Response
      */
-    public function show()
+    public function show(Reply $reply)
     {
         //
     }
@@ -55,10 +75,10 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Reply  $reply
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Reply $reply)
     {
         //
     }
@@ -67,41 +87,30 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Reply  $reply
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
-        if ($request->file === "null") {
-            $fileName = $user->thumbnail;
-        } else {
-            $thumbnailFile = $request->file;
-            $extention = $thumbnailFile->getClientOriginalExtension();
-            $fileName = 'profile_images/thumbnail_' . Auth::id() . '.' . $extention;
-            $thumbnailFile = \Image::make($thumbnailFile)->resize(100, 100)->encode($extention);
-            Storage::cloud()->put($fileName, $thumbnailFile);
-        }
+        $request->validate([
+            'whisp' => 'required|max:120',
+        ]);
         $update = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'thumbnail' => $fileName,
+            'whisp' => $request->whisp,
         ];
-        $user->update($update);
+        Reply::find($id)->update($update);
         return response("OK", 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Reply  $reply
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
-        $deleteUser = User::find($id);
-        Whisper::where('user_id', $id)->delete();
-        $deleteUser->delete();
-        return response("OK", 200);
+        Reply::find($id)->delete();
+        return Response("OK", 200);
     }
 }

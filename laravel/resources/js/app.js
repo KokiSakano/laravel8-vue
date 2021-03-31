@@ -8,6 +8,7 @@ import ExampleComponent from "./components/ExampleComponent";
 import WhisperComponent from "./components/WhisperComponent.vue";
 import NoauthComponent from "./components/NoauthComponent";
 import MyprofileComponent from "./components/MyprofileComponent.vue";
+import ProfileComponent from "./components/ProfileComponent.vue";
 
 window.Vue = require('vue');
 
@@ -18,5 +19,6 @@ const app = new Vue({
         WhisperComponent,
         NoauthComponent,
         MyprofileComponent,
+        ProfileComponent,
     }
 });

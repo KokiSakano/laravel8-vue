@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class WhisperController extends Controller
 {
@@ -16,9 +17,16 @@ class WhisperController extends Controller
      */
     public function index()
     {
-        $whispers = Whisper::with('user')->get();
+        $whispers = Whisper::with('user')->latest()->paginate(10);
         $authId = Auth::id();
-        return array("whispers"=>$whispers, "loginUserId"=>$authId);
+        $imgPath = [];
+        foreach ($whispers as $whisper) {
+            $imgPath[$whisper->user->id] = Storage::disk('minio1')->temporaryUrl(
+                $whisper->user->thumbnail,
+                now()->addMinutes(1)
+            );
+        };
+        return array("whispers" => $whispers, "loginUserId" => $authId, "imgPath" => $imgPath);
     }
 
     /**
@@ -40,6 +48,9 @@ class WhisperController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $request->validate([
+            'whisper' => 'required|max:120',
+        ]);
         $newdata = [
             'whisp' => $request->whisper,
             'user_id' => $user->id,
@@ -55,9 +66,40 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function show(Whisper $whisper)
+    public function show()
     {
-        //
+        $user = Auth::user();
+        $whispers = Whisper::with('user')->whereHas(
+            'user',
+            function ($query) use ($user) {
+                $query->where('name', $user->name);
+            }
+        )->latest()->paginate(10);
+        $imgPath = [
+            $user->id => Storage::disk('minio1')->temporaryUrl(
+                $user->thumbnail,
+                now()->addMinutes(1)
+            )
+        ];
+        return array("whispers" => $whispers, "loginUser" => $user, "imgPath" => $imgPath);
+    }
+
+    public function showUser($id)
+    {
+        $user = User::find($id);
+        $whispers = Whisper::with('user')->whereHas(
+            'user',
+            function ($query) use ($user) {
+                $query->where('name', $user->name);
+            }
+        )->latest()->paginate(10);
+        $imgPath = [
+            $user->id => Storage::disk('minio1')->temporaryUrl(
+                $user->thumbnail,
+                now()->addMinutes(1)
+            )
+        ];
+        return array("whispers" => $whispers, "imgPath" => $imgPath);
     }
 
     /**
@@ -78,9 +120,17 @@ class WhisperController extends Controller
      * @param  \App\Models\Whisper  $whisper
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Whisper $whisper)
+    public function update(Request $request, $id)
     {
-        //
+
+        $request->validate([
+            'whisp' => 'required|max:120',
+        ]);
+        $update = [
+            'whisp' => $request->whisp,
+        ];
+        Whisper::find($id)->update($update);
+        return response("OK", 200);
     }
 
     /**

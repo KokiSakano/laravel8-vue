@@ -5,17 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Whisper extends Model
+class Reply extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'whisp',
         'user_id',
+        'whisper_id',
+        'whisp',
         'good',
     ];
 
     public function user()
     {
         return $this->belongsTo('App\Models\User');
+    }
+
+
+    public function whisper()
+    {
+        return $this->belongsTo('App\Models\Whisper');
     }
 }

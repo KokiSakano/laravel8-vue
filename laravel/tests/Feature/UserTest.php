@@ -30,12 +30,14 @@ class UserTest extends TestCase
         $route = '/api/users/' . strval($this->user->id);
         $this->put($route, [
             'name' => 'test',
-            'email' => 'test@test.com'
-        ])->assertStatus(200);
+            'email' => 'test@test.com',
+            'file' => 'null'
+        ])->assertOK();
 
         $user = User::find($this->user->id);
         $this->assertEquals($user->name, 'test');
         $this->assertEquals($user->email, 'test@test.com');
+        $this->assertEquals($user->thumbnail, 'default.png');
     }
 
     /**
@@ -44,16 +46,7 @@ class UserTest extends TestCase
     public function testUserDelete()
     {
         $route = '/api/users/' . strval($this->user->id);
-        $this->delete($route)->assertStatus(200);
+        $this->delete($route)->assertOK();
         $this->assertEquals(0, User::count());
-    }
-
-    /**
-     * 取得テスト
-     */
-    public function testUserGet()
-    {
-        $route = '/api/users/' . strval($this->user->id);
-        $this->get($route)->assertOK();
     }
 }

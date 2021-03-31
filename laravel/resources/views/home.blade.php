@@ -8,16 +8,16 @@
                 <div class="card-header">{{ __('Dashboard') }}</div>
                 <div id="app">
                     @if (Auth::check())
-                        <whisper-component></whisper-component>
+                    <whisper-component></whisper-component>
                     @else
-                        <noauth-component></noauth-component>
+                    <noauth-component></noauth-component>
                     @endif
                 </div>
                 <div class="card-body">
                     @if (session('status'))
-                        <div class="alert alert-success" role="alert">
-                            {{ session('status') }}
-                        </div>
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
+                    </div>
                     @endif
                 </div>
             </div>
