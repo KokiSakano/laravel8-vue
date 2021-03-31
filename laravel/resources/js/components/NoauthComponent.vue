@@ -14,6 +14,9 @@
                     <div class="card-body">
                         {{ whisper.whisp }}
                         <div class="text-right">
+                            <a @click="openReplyModal(whisper)">
+                                <i class="fas fa-comment comment-btn"></i>
+                            </a>
                             <a>
                                 <i class="fas fa-star like-btn" />
                             </a>
@@ -25,7 +28,58 @@
                 </div>
             </div>
         </div>
-
+        <ReplyModal @close="closeReplyModal" v-if="replyModal">
+            <div slot="header" class="card mx-auto">
+                <div class="card-header">
+                    Reply Message
+                </div>
+            </div>
+            <div slot="body">
+                <div class="card">
+                    <div class="card-header">
+                        <img @click="showProfile(whispReply.user.id)" class="thumbnail" :src="imgPath[whispReply.user.id]"/>
+                        <a @click="showProfile(whispReply.user.id)">{{ whispReply.user.name }}</a>
+                        <a id="time">{{ displayTime(whispReply.created_at) }}</a>
+                    </div>
+                    <div class="card-body">
+                        {{ whispReply.whisp }}
+                        <div class="text-right">
+                            <a>
+                                <i class="fas fa-star like-btn" />
+                            </a>
+                            <a>
+                                {{ whispReply.good }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        Reply
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" v-for="reply in replies" :key="reply.id">
+                            <div>
+                                <img @click="showProfile(reply.user.id)" class="thumbnail" :src="imgPath[reply.user.id]"/>
+                                <a @click="showProfile(reply.user.id)">{{ reply.user.name }}</a>
+                                <a id="time">{{ displayTime(reply.created_at) }}</a>
+                            </div>
+                            <div>
+                                {{ reply.whisp }}
+                                <div class="text-right">
+                                    <a>
+                                        <i class="fas fa-star like-btn" />
+                                    </a>
+                                    <a>
+                                        {{ reply.good }}
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </ReplyModal>
         <div class="row">
             <div class="col-sm-6">
                 <ul class="pagination justify-content-center">
@@ -45,19 +99,24 @@
 
 <script>
     import moment from 'moment';
+    import ReplyModal from './ReplyModal';
     export default {
+        components: {ReplyModal},
         data(){
             return {
                 loading: true,
                 errored: false,
                 error: null,
                 whispers: null,
+                whispReply: null,
+                replyModal: null,
                 current_page: 1,
                 last_page: 1,
                 total: 1,
                 from: 0,
                 to: 0,
                 imgPath: [],
+                replies: [],
             };
         },
         methods:{
@@ -70,12 +129,21 @@
                         this.total = result.data["whispers"].total;
                         this.from = result.data["whispers"].from;
                         this.to = result.data["whispers"].to;
-                        this.imgPath = result.data["imgPath"];
+                        this.imgPath = {...this.imgPath, ...result.data["imgPath"]};
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
                     })
                     .finally(() => (this.loading = false)
+                );
+            },
+            getReply(id){
+                axios.get('/api/replies/'+id).then
+                (
+                    (result)=>{
+                        this.replies = result.data["replies"];
+                        this.imgPath = {...this.imgPath, ...result.data["imgPath"]};
+                    }
                 );
             },
             displayTime(time){
@@ -88,6 +156,15 @@
                 if (unit === "year" || unit ==="months") return timeMoment.format("YYYY/MM/DD");
                 else if(!!unit) return nowMoment.diff(timeMoment, unit)+unit;
                 else return "now"
+            },
+            openReplyModal(whisper) {
+                this.replyModal = true;
+                this.whispReply = whisper;
+                this.getReply(whisper.id);
+            },
+            closeReplyModal() {
+                this.replyModal = false;
+                this.whispReply = null;
             },
             change(page) {
             if (page >= 1 && page <= this.last_page) this.getWhisper(page)

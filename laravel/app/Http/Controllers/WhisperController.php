@@ -78,7 +78,7 @@ class WhisperController extends Controller
         $imgPath = [
             $user->id => Storage::disk('minio1')->temporaryUrl(
                 $user->thumbnail,
-                now()->addSecond(1)
+                now()->addMinutes(1)
             )
         ];
         return array("whispers" => $whispers, "loginUser" => $user, "imgPath" => $imgPath);
@@ -96,7 +96,7 @@ class WhisperController extends Controller
         $imgPath = [
             $user->id => Storage::disk('minio1')->temporaryUrl(
                 $user->thumbnail,
-                now()->addSecond(1)
+                now()->addMinutes(1)
             )
         ];
         return array("whispers" => $whispers, "imgPath" => $imgPath);

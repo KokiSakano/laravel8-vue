@@ -60,6 +60,15 @@ Route::middleware('auth')->get('/api/whispers/myprofile/', 'WhisperController@sh
 
 Route::middleware('auth')->post('/api/whispers/', 'WhisperController@store');
 
+// reply
+Route::get('/api/replies/{id}', 'ReplyController@index');
+
+Route::delete('/api/replies/{id}', 'ReplyController@destroy');
+
+Route::put('/api/replies/{id}', 'ReplyController@update');
+
+Route::middleware('auth')->post('/api/replies/', 'ReplyController@store');
+
 // user
 Route::delete('/api/users/{id}', 'UserController@destroy');
 
@@ -68,6 +77,10 @@ Route::middleware('auth')->put('/api/users/{id}', 'UserController@update');
 // good
 Route::middleware('auth')->get('api/good/', 'GoodController@index');
 
-Route::middleware('auth')->post('api/good/p/{id}', 'GoodController@store');
+Route::middleware('auth')->post('api/good/p/', 'GoodController@store');
 
-Route::middleware('auth')->post('api/good/m/{id}', 'GoodController@deStore');
+Route::middleware('auth')->post('api/good/m/', 'GoodController@deStore');
+
+Route::get('/{any}', static function () {
+    return view('/home');
+})->where('any', '.*');

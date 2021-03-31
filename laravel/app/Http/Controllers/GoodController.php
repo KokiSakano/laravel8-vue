@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Good;
-use App\Models\User;
+use App\Models\Reply;
 use App\Models\Whisper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,13 +19,16 @@ class GoodController extends Controller
     {
         $goods = Good::all();
         $authId = Auth::id();
-        $authGoods = [];
+        $authWhisperGoods = [];
+        $authReplyGoods = [];
         foreach ($goods as $good) {
-            if ($good->user_id === $authId) {
-                $authGoods[] = $good->whisper_id;
+            if ($good->user_id === $authId && $good->reply_id == null) {
+                $authWhisperGoods[] = $good->whisper_id;
+            } else if ($good->user_id === $authId && $good->whisper_id == null) {
+                $authReplyGoods[] = $good->reply_id;
             }
         }
-        return $authGoods;
+        return array("authWhisperGoods" => $authWhisperGoods, "authReplyGoods" => $authReplyGoods);
     }
 
     /**
@@ -44,48 +47,80 @@ class GoodController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store($id)
+    public function store(Request $request)
     {
         $authId = Auth::id();
-        $newdata = [
-            'user_id' => $authId,
-            'whisper_id' => $id,
-        ];
         $goods = Good::all();
-        foreach ($goods as $good) {
-            if ($good->user_id == $authId && $good->whisper_id == $id) {
-                return response('Already Reported', 208);
+        if ($request->whispType != "reply") {
+            foreach ($goods as $good) {
+                if ($good->user_id == $authId && $good->whisper_id == $request->id) {
+                    return response('Already Reported', 208);
+                }
             }
+            $newdata = [
+                'user_id' => $authId,
+                'whisper_id' => $request->id,
+                'reply_id' => null,
+            ];
+            $whisper = Whisper::find($request->id);
+            $update = [
+                'good' => $whisper->good + 1,
+            ];
+            $whisper->update($update);
+        } else {
+            foreach ($goods as $good) {
+                if ($good->user_id == $authId && $good->reply_id == $request->id) {
+                    return response('Already Reported', 208);
+                }
+            }
+            $newdata = [
+                'user_id' => $authId,
+                'whisper_id' => null,
+                'reply_id' => $request->id,
+            ];
+            $reply = Reply::find($request->id);
+            $update = [
+                'good' => $reply->good + 1,
+            ];
+            $reply->update($update);
         }
         Good::create($newdata);
-        $whisper = Whisper::find($id);
-        $update = [
-            'good' => $whisper->good + 1,
-        ];
-        $whisper->update($update);
         return response('OK', 200);
     }
 
-    public function deStore($id)
+    public function deStore(Request $request)
     {
         $authId = Auth::id();
-        $whisperId = Whisper::find($id)->id;
         $goods = Good::all();
-        $delOrNot = 0;
-        foreach ($goods as $good) {
-            if ($good->user_id == $authId && $good->whisper_id == $whisperId) {
-                $good->delete();
-                $delOrNot = 1;
+        if ($request->whispType != "reply") {
+            $whisper = Whisper::find($request->id);
+            $delOrNot = 0;
+            foreach ($goods as $good) {
+                if ($good->user_id == $authId && $good->whisper_id == $whisper->id) {
+                    $good->delete();
+                    $delOrNot = 1;
+                }
             }
+            if ($delOrNot == 0) return response('Already Reported', 208);
+            $update = [
+                'good' => $whisper->good - 1,
+            ];
+            $whisper->update($update);
+        } else {
+            $reply = Reply::find($request->id);
+            $delOrNot = 0;
+            foreach ($goods as $good) {
+                if ($good->user_id == $authId && $good->reply_id == $reply->id) {
+                    $good->delete();
+                    $delOrNot = 1;
+                }
+            }
+            if ($delOrNot == 0) return response('Already Reported', 208);
+            $update = [
+                'good' => $reply->good - 1,
+            ];
+            $reply->update($update);
         }
-        if ($delOrNot == 0) {
-            return response('Already Reported', 208);
-        }
-        $whisper = Whisper::find($id);
-        $update = [
-            'good' => $whisper->good - 1,
-        ];
-        $whisper->update($update);
         return response('OK', 200);
     }
 

@@ -11,7 +11,7 @@
                         <button @click="openProfileModal">
                             プロフィール変更
                         </button>
-                        <EditprofileModal @close="closeProfileModal" v-if="modalProfile">
+                        <EditprofileModal @close="closeProfileModal" v-if="profileModal">
                             <p slot="header"> プロフィール変更 </p>
                             <div slot="body">
                                 <div class="card-body">
@@ -63,15 +63,18 @@
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdown1">
                                             <button class="dropdown-item" type="button" @click="deleteWhisper(whisper.id)">削除</button>
-                                            <button class="dropdown-item" type="button" @click="openWhisperModal(whisper)">編集</button>
+                                            <button class="dropdown-item" type="button" @click="openEditModal(whisper)">編集</button>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="card-body">
                                     {{ whisper.whisp }}
                                     <div class="text-right">
-                                        <a @click="doGood(whisper.id)">
-                                            <i class="fas fa-star" :class="[goodOrNot(whisper.id)? 'unlike-btn' : 'like-btn']" />
+                                        <a @click="openReplyModal(whisper)">
+                                                <i class="fas fa-comment comment-btn"></i>
+                                        </a>
+                                        <a @click="doGood(whisper.id, 'whisp1')">
+                                            <i class="fas fa-star" :class="[goodOrNot(whisper.id, 'whisp1')? 'unlike-btn' : 'like-btn']" />
                                         </a>
                                         <a>
                                             {{ whisper.good }}
@@ -95,7 +98,95 @@
                     <div style="margin-top: 40px" class="col-sm-6 text-right">全 {{total}} 件中 {{from}} 〜 {{to}} 件表示</div>
                 </div>
             </div>
-            <EditwhispModal @close="closeWhisperModal" v-if="modalWhisper">
+            <ReplyModal @close="closeReplyModal" v-if="replyModal">
+                <div slot="header" class="card mx-auto">
+                    <div class="card-header">
+                        Reply Message
+                    </div>
+                </div>
+                <div slot="body">
+                    <div class="card">
+                        <div class="card-header">
+                            <img @click="showProfile(whispReply.user.id)" class="thumbnail" :src="imgPath[whispReply.user.id]"/>
+                            <a @click="showProfile(whispReply.user.id)">{{ whispReply.user.name }}</a>
+                            <a id="time">{{ displayTime(whispReply.created_at) }}</a>
+                            <div v-if="whispReply.user_id === authId">
+                                <div class="dropdown" id="somefunc">
+                                    <button type="button" id="dropdown1"
+                                        class="btn btn-secondary dropdown-toggle"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                        ⋮
+                                    </button>
+                                    <div class="dropdown-menu" aria-labelledby="dropdown1">
+                                        <button class="dropdown-item" type="button" @click="deleteWhisper(whispReply.id)">削除</button>
+                                        <button class="dropdown-item" type="button" @click="openEditModal(whispReply)">編集</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {{ whispReply.whisp }}
+                            <div class="text-right">
+                                <a @click="doGood(whispReply.id, 'whisp2')">
+                                    <i class="fas fa-star" :class="[goodOrNot(whispReply.id, 'whisp2')? 'unlike-btn' : 'like-btn']" />
+                                </a>
+                                <a>
+                                    {{ whispReply.good }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            Reply
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" v-for="reply in replies" :key="reply.id">
+                                <div>
+                                    <img @click="showProfile(reply.user.id)" class="thumbnail" :src="imgPath[reply.user.id]"/>
+                                    <a @click="showProfile(reply.user.id)">{{ reply.user.name }}</a>
+                                    <a id="time">{{ displayTime(reply.created_at) }}</a>
+                                    <div v-if="reply.user_id === authId">
+                                        <div class="dropdown" id="somefunc">
+                                            <button type="button" id="dropdown1"
+                                                class="btn btn-secondary dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                                ⋮
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdown1">
+                                                <button class="dropdown-item" type="button" @click="deleteReply(reply.id)">削除</button>
+                                                <button class="dropdown-item" type="button" @click="openEditModal(reply)">編集</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    {{ reply.whisp }}
+                                    <div class="text-right">
+                                        <a @click="doGood(reply.id, 'reply')">
+                                            <i class="fas fa-star" :class="[goodOrNot(reply.id, 'reply')? 'unlike-btn' : 'like-btn']" />
+                                        </a>
+                                        <a>
+                                            {{ reply.good }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <p>Reply:<input type="text" class="form-control" v-model="replyForm" placeholder="120文字以下で入力してください。"></p>
+                    <div class="text-right">
+                        <button @click="PostReply(whispReply.id)">
+                        OK
+                        </button>
+                    </div>
+                </div>
+            </ReplyModal>
+            <EditwhispModal @close="closeEditModal" v-if="EditModal">
                 <p slot="header"> Whisp変更 </p>
                 <div slot="body">
                     <p>変更前:{{whispEdit.whisp}}</p> <br />
@@ -113,19 +204,23 @@
     import moment from "moment"
     import EditprofileModal from "./EditprofileModal";
     import EditwhispModal from "./EditwhispModal";
+    import ReplyModal from "./ReplyModal";
     export default {
         components: {
             EditprofileModal,
             EditwhispModal,
+            ReplyModal,
         },
         data(){
             return {
                 loading: true,
                 errored: false,
                 error: null,
-                modalProfile: false,
-                modalWhisper: false,
+                profileModal: false,
+                EditModal: false,
+                replyModal: false,
                 whispers: null,
+                whispReply: {id: null},
                 authId: null,
                 loginUser: null,
                 thumbnailFlag: false,
@@ -134,6 +229,7 @@
                 nameForm: null,
                 emailForm: null,
                 whispForm: null,
+                replyForm: null,
                 passwordForm: "まだ対応してないよ。",
                 deleteForm: null,
                 current_page: 1,
@@ -143,7 +239,9 @@
                 to: 0,
                 imgPath: {},
                 cThumbnail: null,
-                goodArr: [],
+                goodWhispArr: [],
+                goodReplyArr: [],
+                replies: [],
             }
         },
         methods: {
@@ -154,7 +252,7 @@
                         this.authId = this.loginUser["id"];
                         this.nameForm = this.loginUser["name"];
                         this.emailForm = this.loginUser["email"];
-                        this.imgPath = result.data["imgPath"];
+                        this.imgPath = {...this.imgPath, ...result.data["imgPath"]};
                         this.cThumbnail = this.imgPath[this.authId];
                         this.whispers = result.data["whispers"].data;
                         this.current_page = result.data["whispers"].current_page;
@@ -162,6 +260,7 @@
                         this.total = result.data["whispers"].total;
                         this.from = result.data["whispers"].from;
                         this.to = result.data["whispers"].to;
+                        this.whispReply = this.whispers.find(whisper => whisper.id === this.whispReply.id);
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -172,7 +271,17 @@
             getAuthGood(){
                 axios.get('/api/good/').then((result)=>
                     {
-                        this.goodArr = Object.keys(result.data).map(function (key) {return result.data[key]});
+                        this.goodWhispArr = Object.keys(result.data["authWhisperGoods"]).map(function (key) {return result.data["authWhisperGoods"][key]});
+                        this.goodReplyArr = Object.keys(result.data["authReplyGoods"]).map(function (key) {return result.data["authReplyGoods"][key]});
+                    }
+                );
+            },
+            getReply(id){
+                axios.get('/api/replies/'+id).then
+                (
+                    (result)=>{
+                        this.replies = result.data["replies"];
+                        this.imgPath = {...this.imgPath, ...result.data["imgPath"]};
                     }
                 );
             },
@@ -181,6 +290,18 @@
                 axios.delete("/api/whispers/" + id, JSON.stringify(data)).then(() =>
                     {
                         this.getWhisper(this.current_page);
+                    })
+                    .catch(err => {
+                        (this.errored = true), (this.error = err);
+                    })
+                    .finally(() => (this.loading = false)
+                );
+            },
+            deleteReply(id){
+                var data = {};
+                axios.delete("/api/replies/" + id, JSON.stringify(data)).then(() =>
+                    {
+                        this.getReply(this.whispReply.id);
                     })
                     .catch(err => {
                         (this.errored = true), (this.error = err);
@@ -208,6 +329,25 @@
                     );
                 }
             },
+            editReply(id){
+                if(this.whispForm.length>120){
+                    alert("文字列が長すぎます。120文字以下にして下さい。");
+                }
+                else{
+                    axios.put("/api/replies/" + id, {
+                        whisp: this.whispForm,
+                    }).then(() =>
+                        {
+                            this.getReply(this.whispReply.id);
+                            this.whispEdit = null;
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
+            },
             displayTime(time){
                 const timeMoment = moment(time);
                 const nowMoment = moment(new Date());
@@ -220,18 +360,27 @@
                 else return "now"
             },
             openProfileModal() {
-                this.modalProfile = true;
+                this.profileModal = true;
             },
             closeProfileModal() {
-                this.modalProfile = false;
+                this.profileModal = false;
                 this.thumbnailFlag = false;
             },
-            openWhisperModal(whisper) {
-                this.modalWhisper = true;
+            openEditModal(whisper) {
+                this.EditModal = true;
                 this.whispEdit = whisper;
             },
-            closeWhisperModal() {
-                this.modalWhisper = false;
+            closeEditModal() {
+                this.EditModal = false;
+            },
+            openReplyModal(whisper) {
+                this.replyModal = true;
+                this.whispReply = whisper;
+                this.getReply(whisper.id);
+            },
+            closeReplyModal() {
+                this.replyModal = false;
+                this.whispReply = {id: null};
             },
             changeImage(e) {
                 const files = e.target.files;
@@ -261,9 +410,10 @@
             },
             changeWhisp() {
                 if (this.whispEdit.whisp !== this.whispForm){
-                    this.editWhisper(this.whispEdit.id);
+                    if(!this.whispEdit.whisper_id)this.editWhisper(this.whispEdit.id);
+                    else this.editReply(this.whispEdit.id);
                 }
-                this.closeWhisperModal();
+                this.closeEditModal();
             },
             editUser(){
                 let formData = new FormData();
@@ -293,11 +443,16 @@
                     .finally(() => (this.loading = false)
                 );
             },
-            doGood(id){
-                if (this.goodOrNot(id)){
-                    axios.post("/api/good/m/"+id).then(() =>
+            doGood(id, type){
+                var data = {
+                    "id": id,
+                    "whispType": type,
+                };
+                if (this.goodOrNot(id, type)){
+                    axios.post("/api/good/m/", data).then(() =>
                         {
                             this.getWhisper(this.current_page);
+                            if (type=="reply") this.getReply(this.whispReply.id);
                             this.getAuthGood();
                         })
                         .catch(err => {
@@ -307,9 +462,10 @@
                     );
                 }
                 else{
-                    axios.post("/api/good/p/"+id).then(() =>
+                    axios.post("/api/good/p/", data).then(() =>
                         {
                             this.getWhisper(this.current_page);
+                            if (type=="reply") this.getReply(this.whispReply.id);
                             this.getAuthGood();
                         })
                         .catch(err => {
@@ -319,12 +475,37 @@
                     );
                 }
             },
-            goodOrNot(id){
+            goodOrNot(id, type){
                 var flag = false;
-                if(this.goodArr.includes(id)){
+                if((this.goodWhispArr.includes(id) && type!="reply") || (this.goodReplyArr.includes(id) && type=="reply")){
                     flag=true;
                 }
                 return flag;
+            },
+            PostReply(id) {
+                var data = {
+                    reply: this.replyForm,
+                    whispType: "whisp",
+                    id: id,
+                };
+                if (!data["reply"]){
+                    alert("何か入力してください。");
+                }
+                else if(data["reply"].length>120){
+                    alert("文字列が長すぎます。120文字以下にして下さい。");
+                }
+                else {
+                    axios.post('/api/replies/', data).then(() =>
+                        {
+                            this.getReply(id);
+                            this.replyForm = "";
+                        })
+                        .catch(err => {
+                            (this.errored = true), (this.error = err);
+                        })
+                        .finally(() => (this.loading = false)
+                    );
+                }
             },
         },
         mounted() {
